@@ -1,11 +1,14 @@
-
 #define MODULE_GENERIC
+
 #include <Arduino.h>
 #include "mlrs-wireless-bridge-boards.h"
 #include <WiFi.h>
-
+#include "geoTransform.h"
+#include "fastmavlink_config.h"
+#include "common/mavlink.h"
 
 #define WIFI_POWER  WIFI_POWER_2dBm // WIFI_POWER_MINUS_1dBm is the lowest possible, WIFI_POWER_19_5dBm is the max
+
 
 String ssid = "mLRS AP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -34,6 +37,11 @@ unsigned long serial_data_received_tfirst_ms;
 TaskHandle_t SerialBridge;
 TaskHandle_t GeoCalculations;
 QueueHandle_t shareMavlinkMsg;
+
+// MavLink 
+mavlink_message_t msg;
+mavlink_status_t status;
+int chan = MAVLINK_COMM_0;
 
 void serialFlushRx(void) {
     while (SERIAL.available() > 0) { uint8_t c = SERIAL.read(); }
@@ -72,22 +80,28 @@ void bridgeTask(void * parameters) {
     } 
     else
       if ((tnow_ms - serial_data_received_tfirst_ms) > 10 || avail > 128) { // 10 ms at 57600 bps corresponds to 57 bytes, no chance for 128 bytes
-          serial_data_received_tfirst_ms = tnow_ms;
 
+          serial_data_received_tfirst_ms = tnow_ms;
           int len = SERIAL.read(buf, sizeof(buf));
           xQueueSend(shareMavlinkMsg, &buf, 1);
           udp.beginPacket(ip_udp, port_udp);
           udp.write(buf, len);
           udp.endPacket();
-      }
+    }
   }
 }
 
 void GeoClacTask(void * parameters) {
 
-  uint8_t buf[256];
-  xQueueReceive(shareMavlinkMsg, &buf, portMAX_DELAY);
+  uint8_t buf;
+  for(;;) {
+    xQueueReceive(shareMavlinkMsg, &buf, portMAX_DELAY);
+    mavlink_parse_char(chan, buf, &msg, &status);
+    Serial.print(msg.msgid);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+  }
 }
+
 void setup() {
 
     led_init();
@@ -132,6 +146,7 @@ void setup() {
     xTaskCreatePinnedToCore(bridgeTask, "Bridge", 5000, NULL, 2, &SerialBridge, ARDUINO_RUNNING_CORE);
     xTaskCreatePinnedToCore(GeoClacTask, "Calculations", 5000, NULL, 2, &GeoCalculations, ARDUINO_RUNNING_CORE);
 }
+
 void loop() {
 
 }
