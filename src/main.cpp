@@ -1,9 +1,10 @@
 
-#define MODULE_GENERIC
+#define MODULE_ESP32_DEVKITC_V4
+
 #include <Arduino.h>
 #include "mlrs-wireless-bridge-boards.h"
 #include <WiFi.h>
-
+#include <TMC2209.h>
 
 #define WIFI_POWER  WIFI_POWER_2dBm // WIFI_POWER_MINUS_1dBm is the lowest possible, WIFI_POWER_19_5dBm is the max
 
