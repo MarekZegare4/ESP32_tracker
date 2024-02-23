@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "common/mavlink.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SharpMem.h>
 
 #define mlrsRX  33
 #define mlrsTX  32
