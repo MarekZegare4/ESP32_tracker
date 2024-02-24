@@ -6,12 +6,25 @@
 #define mlrsRX  33
 #define mlrsTX  32
 
+#define SHARP_SCK  14
+#define SHARP_MOSI 13
+#define SHARP_SS   12
+
+#define BLACK 0
+#define WHITE 1
+
+Adafruit_SharpMem display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 400, 240);
+
 void JedenTask (void * parameters)
 {
   for(;;)
   {
     //printf("dziala\n");
     Serial1.write("test\n");
+    display.fillCircle(display.width()/2, display.height()/2, 10, BLACK);
+    display.refresh();
+    delay(500);
+    display.clearDisplay();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
@@ -21,6 +34,12 @@ void setup() {
   Serial2.begin(57600, SERIAL_8N1, mlrsRX, mlrsTX);
   Serial1.begin(57600, SERIAL_8N1, 27, 26);
   Serial.begin(57600);
+
+  display.begin();
+  display.clearDisplay();
+
+  // draw a circle, 10 pixel radius
+
   xTaskCreate(JedenTask, "task", 5000, NULL, 1, NULL);
 }
 
