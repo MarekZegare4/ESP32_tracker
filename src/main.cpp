@@ -3,6 +3,8 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
 #include <WiFi.h>
+#include <SCServo.h>
+#include <DFRobot_BMM150.h>
 
 #define mlrsRX  33
 #define mlrsTX  32
@@ -37,6 +39,12 @@ unsigned long is_connected_tlast_ms;
 unsigned long serial_data_received_tfirst_ms;
 
 Adafruit_SharpMem display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 400, 240);
+
+SMS_STS sms_sts;
+#define S_RXD 18
+#define S_TXD 19
+
+int TEST_ID = 3;
 
 //uint8_t buf[256]; // working buffer
 //int len;
@@ -196,7 +204,9 @@ void setup() {
   size_t txbufsize = Serial2.setTxBufferSize(512); // must come before uart started, retuns 0 if it fails
   Serial1.setRxBufferSize(1024);
   Serial2.begin(57600, SERIAL_8N1, mlrsRX, mlrsTX);
-  Serial1.begin(57600, SERIAL_8N1, 27, 26);
+  //Serial1.begin(57600, SERIAL_8N1, 27, 26);
+  Serial1.begin(1000000, SERIAL_8N1, S_RXD, S_TXD);
+  sms_sts.pSerial = &Serial1;
   Serial.begin(57600);
 
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
@@ -224,6 +234,15 @@ void setup() {
 
 
 
-void loop(){
-  
+void loop()
+{
+  int ID = sms_sts.Ping(TEST_ID);
+  if(ID!=-1){
+    Serial.print("Servo ID:");
+    Serial.println(ID, DEC);
+    delay(100);
+  }else{
+    Serial.println("Ping servo ID error!");
+    delay(2000);
+  }
 }
