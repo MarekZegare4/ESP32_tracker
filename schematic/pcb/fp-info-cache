@@ -1,4 +1,4 @@
-21861871353497514
+21863581068713077
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -80492,6 +80492,13 @@ http://www.susumu-usa.com/pdf/Foot_Print_38.pdf, https://www.susumu.co.jp/common
 0
 3
 3
+RF_GPS
+GPS_ANTENNA
+1004322-3
+Capacitor
+0
+1
+1
 RF_GPS
 Linx_RXM-GPS
 GPS Module, Linx (https://linxtechnologies.com/wp/wp-content/uploads/rxm-gps-rm.pdf)
