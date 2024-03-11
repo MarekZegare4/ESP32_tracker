@@ -5,16 +5,18 @@
 #include <WiFi.h>
 #include <SCServo.h>
 #include <DFRobot_BMM150.h>
+#include <SPI.h>
+#include "ekran.h"
 
 #define mlrsRX  33
 #define mlrsTX  32
 
-#define SHARP_SCK  14
-#define SHARP_MOSI 13
-#define SHARP_SS   12
+// #define SHARP_SCK  14
+// #define SHARP_MOSI 13
+// #define SHARP_SS   12
 
-#define BLACK 0
-#define WHITE 1
+// #define BLACK 0
+// #define WHITE 1
 
 #define WIFI_POWER  WIFI_POWER_2dBm
 
@@ -38,7 +40,7 @@ bool is_connected;
 unsigned long is_connected_tlast_ms;
 unsigned long serial_data_received_tfirst_ms;
 
-Adafruit_SharpMem display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 400, 240);
+//Adafruit_SharpMem display(SHARP_SCK, SHARP_MOSI, SHARP_SS, 400, 240);
 
 SMS_STS sms_sts;
 #define S_RXD 18
@@ -71,21 +73,11 @@ void JedenTask (void * parameters) {
 }
 
 void ScreenTask (void * parameters) {
+  int FPS = 60;
+  szcz();
   for(;;) {
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(BLACK);
-  display.setCursor(0,0);
-  display.println("Hello, world!");
-  display.refresh();
-  delay(500);
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.setTextSize(2);
-  display.setTextColor(WHITE, BLACK); // inverted text
-  display.println("Hello, world!");
-  display.refresh();
-  delay(500);
+    
+    //vTaskDelay(1/FPS*portTICK_PERIOD_MS);
   }
 }
 
@@ -162,7 +154,7 @@ for(;;){
     uint8_t byte = packet.buf[i];
     if (mavlink_parse_char(chan, byte, &msg, &status))
     {
-    //printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+    printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
     switch(msg.msgid) {
       case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
         {
@@ -236,13 +228,13 @@ void setup() {
 
 void loop()
 {
-  int ID = sms_sts.Ping(TEST_ID);
-  if(ID!=-1){
-    Serial.print("Servo ID:");
-    Serial.println(ID, DEC);
-    delay(100);
-  }else{
-    Serial.println("Ping servo ID error!");
-    delay(2000);
-  }
+  // int ID = sms_sts.Ping(TEST_ID);
+  // if(ID!=-1){
+  //   Serial.print("Servo ID:");
+  //   Serial.println(ID, DEC);
+  //   delay(100);
+  // }else{
+  //   Serial.println("Ping servo ID error!");
+  //   delay(2000);
+  // }
 }
