@@ -78,11 +78,6 @@ void BridgeTask(void * parameters) {
       serial_data_received_tfirst_ms = tnow_ms;
       
       int len = Serial2.read(buf, sizeof(buf));
-      struct{
-        int len;
-        uint8_t buf[256];
-      } packet;
-
       packet.len = len;
       for (uint8_t i = 0; i < len; i++){
         packet.buf[i] = buf[i];

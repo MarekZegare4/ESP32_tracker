@@ -17,13 +17,14 @@ void HeartbeatTask(void * parameters) {
     }
 }
 
-void MavTask(void * parameters){
+void DecodeTelemetryTask(void * parameters){
     mavlink_status_t status;
     mavlink_message_t msg;
     int chan = MAVLINK_COMM_0;
     packet packet;
-
+   
     for(;;){
+         vTaskDelay(10/portTICK_PERIOD_MS); // 10ms delay
         if(xQueuePeek(kolejka, &packet, 0)) {
             xQueueReceive(kolejka, &packet, 0);
             for (uint16_t i = 0; i < packet.len; i++) {

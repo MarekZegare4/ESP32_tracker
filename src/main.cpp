@@ -26,16 +26,17 @@ void setup() {
   //Serial1.begin(57600, SERIAL_8N1, 27, 26);
   Serial1.begin(1000000, SERIAL_8N1, S_RXD, S_TXD);
   Serial.begin(57600);
-
+  
   WiFiInitialize();
   DisplayInitialize();
 
   kolejka = xQueueCreate(2, sizeof(packet));
   xTaskCreate(JedenTask, "Test", 1000, NULL, 1, NULL);
-  xTaskCreatePinnedToCore(ScreenTask, "Ekran", 1000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(ScreenTask, "Ekran", 2000, NULL, 1, NULL, 1);
+  xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
   //xTaskCreate(HeartbeatTask, "Heartbeat", 5000, NULL, 1, NULL);
-  xTaskCreatePinnedToCore(MavTask, "Mav", 5000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
+  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
+  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
 }
 
 
