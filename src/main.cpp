@@ -34,7 +34,7 @@ void setup() {
   xTaskCreate(JedenTask, "Test", 1000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(ScreenTask, "Ekran", 2000, NULL, 1, NULL, 1);
   xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
-  //xTaskCreate(HeartbeatTask, "Heartbeat", 5000, NULL, 1, NULL);
+  xTaskCreate(SendHeartbeatTask, "Heartbeat", 1000, NULL, 1, NULL);
   xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
 }
