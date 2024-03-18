@@ -1,9 +1,9 @@
 #include <Arduino.h>
-#include "mag.h"
-#include "servo.h"
-#include "display.h"
-#include "bridge.h"
-#include "mav.h"
+#include "magnetometer/mag.h"
+#include "servo/servo.h"
+#include "display/display.h"
+#include "bridge/bridge.h"
+#include "mavlink/mav.h"
 
 #define mlrsRX  33
 #define mlrsTX  32
@@ -18,6 +18,9 @@ void JedenTask (void * parameters) {
   }
 }
 
+QueueHandle_t kolejka;
+displayElements dispElem;
+
 void setup() {
   size_t rxbufsize = Serial2.setRxBufferSize(2*1024); // must come before uart started, retuns 0 if it fails
   size_t txbufsize = Serial2.setTxBufferSize(512); // must come before uart started, retuns 0 if it fails
@@ -27,16 +30,19 @@ void setup() {
   Serial1.begin(1000000, SERIAL_8N1, S_RXD, S_TXD);
   Serial.begin(57600);
   
-  WiFiInitialize();
-  DisplayInitialize();
-
   kolejka = xQueueCreate(2, sizeof(packet));
-  xTaskCreate(JedenTask, "Test", 1000, NULL, 1, NULL);
+
+  BridgeInitialize();
+  DisplayInitialize();
+  MagInitialize();
+  
+  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+  xTaskCreate(MagTask, "Mag", 2000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(ScreenTask, "Ekran", 2000, NULL, 1, NULL, 1);
   xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
-  xTaskCreate(SendHeartbeatTask, "Heartbeat", 1000, NULL, 1, NULL);
+  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
   xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
-  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+  
 }
 
 

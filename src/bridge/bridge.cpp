@@ -1,8 +1,10 @@
-#pragma once
 #include <WiFi.h>
 #include <Arduino.h>
+#include "bridge.h"
 
 #define WIFI_POWER  WIFI_POWER_2dBm
+
+extern QueueHandle_t kolejka;
 
 String ssid = "mLRS AP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -23,25 +25,17 @@ bool is_connected;
 unsigned long is_connected_tlast_ms;
 unsigned long serial_data_received_tfirst_ms;
 
-static QueueHandle_t kolejka;
+void BridgeInitialize(){
+    WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
+    WiFi.softAPConfig(ip, ip_gateway, netmask);
+    String ssid_full = ssid + " UDP";
+    WiFi.softAP(ssid_full.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
+    WiFi.setTxPower(WIFI_POWER);
+    udp.begin(port_udp);
 
-class packet {
-  public:
-    int len;
-    uint8_t buf[256];
-};
-
-void WiFiInitialize(){
-  WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
-  WiFi.softAPConfig(ip, ip_gateway, netmask);
-  String ssid_full = ssid + " UDP";
-  WiFi.softAP(ssid_full.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
-  WiFi.setTxPower(WIFI_POWER);
-  udp.begin(port_udp);
-
-  is_connected = false;
-  is_connected_tlast_ms = 0;
-  serial_data_received_tfirst_ms = 0;
+    is_connected = false;
+    is_connected_tlast_ms = 0;
+    serial_data_received_tfirst_ms = 0;
 }
 
 void serialFlushRx(void)

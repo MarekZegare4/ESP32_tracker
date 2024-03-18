@@ -1,9 +1,10 @@
-#pragma once
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
 #include <mat.h>
 #include <SPI.h>
+#include "display.h"
 
+extern displayElements dispElem;
 // #define SHARP_SCK  14
 // #define SHARP_MOSI 13
 // #define SHARP_SS   15
@@ -14,13 +15,13 @@
 
 SPIClass vspi = SPIClass(VSPI);
 
-
 #define BLACK 0
 #define WHITE 1
 uint32_t freq = 2000000;
 Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, freq);
 
 GFXcanvas1 AH(display.width()/2, display.width()/2); // Artificial Horizon
+GFXcanvas1 TXT(display.width()/2, display.width()/2); // text part of the screen
 
 double deg = 0;
 
@@ -28,6 +29,12 @@ void menu() {
 	// Linie dzielące ekran na 3 części
     display.drawLine(display.width()/2, 0, display.width()/2, display.width()/2, BLACK);
 	display.drawLine(0, display.width()/2, display.width(), display.width()/2, BLACK);
+    TXT.fillScreen(WHITE);
+    TXT.setTextSize(2);
+    TXT.setTextColor(BLACK);
+    TXT.setCursor(10,5);
+	TXT.println(dispElem.gcsCompass);
+    display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
 void artificialHorizon() {
@@ -59,7 +66,7 @@ void artificialHorizon() {
 
 void ScreenTask (void * parameters) {
 	for(;;){
-		int FPS = 60;
+		int FPS = 50;
    		menu();
 		artificialHorizon();
 		display.refresh();

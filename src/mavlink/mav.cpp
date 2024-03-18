@@ -1,8 +1,8 @@
-#pragma once
 #include "common/mavlink.h"
 #include <Arduino.h>
-#include "bridge.h"
+#include "bridge/bridge.h" // packet struct
 
+extern QueueHandle_t kolejka;
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
 
 void SendHeartbeatTask(void * parameters) {
