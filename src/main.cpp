@@ -12,13 +12,6 @@
 #define S_RXD 18
 #define S_TXD 19
 
-void JedenTask (void * parameters) {
-  for(;;) {
-    printf("Działa\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
-}
-
 QueueHandle_t kolejka;
 displayElements dispElem;
 

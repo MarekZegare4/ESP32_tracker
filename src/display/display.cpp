@@ -34,7 +34,7 @@ void menu() {
     TXT.fillScreen(WHITE);
     TXT.setTextSize(1);
     TXT.setTextColor(BLACK);
-    TXT.setCursor(5,5);
+    TXT.setCursor(5, 10);
 	TXT.println("Mag heading: " + dispElem.gcsCompass);
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
