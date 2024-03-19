@@ -30,10 +30,10 @@ void menu() {
     display.drawLine(display.width()/2, 0, display.width()/2, display.width()/2, BLACK);
 	display.drawLine(0, display.width()/2, display.width(), display.width()/2, BLACK);
     TXT.fillScreen(WHITE);
-    TXT.setTextSize(2);
+    TXT.setTextSize(1);
     TXT.setTextColor(BLACK);
-    TXT.setCursor(10,5);
-	TXT.println(dispElem.gcsCompass);
+    TXT.setCursor(5,5);
+	TXT.println("Mag heading: " + dispElem.gcsCompass);
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 

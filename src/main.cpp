@@ -4,6 +4,7 @@
 #include "display/display.h"
 #include "bridge/bridge.h"
 #include "mavlink/mav.h"
+#include "gps/gps.h"
 
 #define mlrsRX  33
 #define mlrsTX  32

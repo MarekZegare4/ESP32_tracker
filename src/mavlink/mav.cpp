@@ -1,8 +1,10 @@
 #include "common/mavlink.h"
 #include <Arduino.h>
 #include "bridge/bridge.h" // packet struct
+#include "display/display.h"
 
 extern QueueHandle_t kolejka;
+extern displayElements dispElem;
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
 
 void SendHeartbeatTask(void * parameters) {
@@ -47,6 +49,7 @@ void DecodeTelemetryTask(void * parameters){
                                 // Get all fields in payload (into sys_status)
                                 mavlink_statustext_t sys_status;
                                 mavlink_msg_statustext_decode(&msg, &sys_status);
+                                dispElem.mavStatusMsg = sys_status.text;
                                 break;
                             }
                         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT

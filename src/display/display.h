@@ -4,6 +4,7 @@
 class displayElements {	
 	public:
 		String gcsCompass;
+		String mavStatusMsg;
 };
 
 void menu();
