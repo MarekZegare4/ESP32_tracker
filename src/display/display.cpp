@@ -17,8 +17,10 @@ SPIClass vspi = SPIClass(VSPI);
 
 #define BLACK 0
 #define WHITE 1
-uint32_t freq = 2000000;
-Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, freq);
+#define FREQ_2MHZ 2000000
+#define FPS 30
+
+Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, FREQ_2MHZ);
 
 GFXcanvas1 AH(display.width()/2, display.width()/2); // Artificial Horizon
 GFXcanvas1 TXT(display.width()/2, display.width()/2); // text part of the screen
@@ -66,7 +68,6 @@ void artificialHorizon() {
 
 void ScreenTask (void * parameters) {
 	for(;;){
-		int FPS = 50;
    		menu();
 		artificialHorizon();
 		display.refresh();

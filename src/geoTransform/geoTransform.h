@@ -2,9 +2,9 @@
 
 class wgs84_coord {
     public:
-        float lat;
-        float lon;
-        float alt;
+        int32_t lat;
+        int32_t lon;
+        int32_t alt;
 };
 
 class cart_coord {

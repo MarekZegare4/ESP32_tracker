@@ -5,6 +5,11 @@
 
 extern QueueHandle_t kolejka;
 extern displayElements dispElem;
+
+int32_t uavLon;
+int32_t uavLat;
+int32_t uavAlt;
+
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
 
 void SendHeartbeatTask(void * parameters) {
@@ -57,9 +62,9 @@ void DecodeTelemetryTask(void * parameters){
                             // Get all fields in payload (into global_position)
                             mavlink_global_position_int_t global_position;
                             mavlink_msg_global_position_int_decode(&msg, &global_position);
-                            Serial.print("Alt ");
-                            Serial.print(global_position.alt);
-                            Serial.print('\n');
+                            uavLat = global_position.lat;
+                            uavLon = global_position.lon;
+                            uavAlt = global_position.alt;
                             }
                             break;
                         case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
