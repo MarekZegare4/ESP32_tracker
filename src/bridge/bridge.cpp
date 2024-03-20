@@ -4,7 +4,7 @@
 
 #define WIFI_POWER  WIFI_POWER_2dBm
 
-extern QueueHandle_t queue;
+static QueueHandle_t queue;
 
 String ssid = "mLRS AP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -36,6 +36,17 @@ void BridgeInitialize(){
     is_connected = false;
     is_connected_tlast_ms = 0;
     serial_data_received_tfirst_ms = 0;
+
+}
+void CreateQueue() {
+    queue = xQueueCreate(2, sizeof(packet));
+}
+
+packet AccessQueue() {
+  packet packet;
+  if (xQueueReceive(queue, &packet, portMAX_DELAY) == pdTRUE) {
+    return packet;
+  }
 }
 
 void serialFlushRx(void)

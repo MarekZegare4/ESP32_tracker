@@ -4,6 +4,14 @@
 #include <SPI.h>
 #include "display.h"
 
+// 'Interface-Essential-Alert-Circle-1--Streamline-Pixel', 24x24px
+const unsigned char epd_bitmap_Interface_Essential_Alert_Circle_1__Streamline_Pixel [] PROGMEM = {
+		0xff, 0x0f, 0xf0, 0xfc, 0x03, 0xf0, 0xf0, 0x00, 0xf0, 0xe1, 0xf8, 0x70, 0xc1, 0xf8, 0x30, 0xc1, 
+	0xe8, 0x30, 0x81, 0xe8, 0x10, 0x81, 0xf8, 0x10, 0x01, 0xf8, 0x00, 0x00, 0xf0, 0x00, 0x00, 0xf0, 
+	0x00, 0x00, 0x00, 0x00, 0x80, 0x60, 0x10, 0x80, 0xf0, 0x10, 0xc0, 0xf0, 0x30, 0xc0, 0xf0, 0x30, 
+	0xe0, 0xf0, 0x70, 0xf0, 0x00, 0xf0, 0xfc, 0x03, 0xf0, 0xff, 0x0f, 0xf0
+};
+
 extern displayElements dispElem;
 // #define SHARP_SCK  14
 // #define SHARP_MOSI 13
@@ -36,19 +44,21 @@ void Menu() {
     TXT.setTextColor(BLACK);
     TXT.setCursor(5, 10);
 	TXT.println("Mag heading: " + dispElem.gcsCompass);
+	TXT.drawBitmap(20,20, epd_bitmap_Interface_Essential_Alert_Circle_1__Streamline_Pixel, 20, 20, WHITE, BLACK);
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
 void ArtificialHorizon() {
 	// Rysowanie sztucznego horyzontu
+	deg = degrees(dispElem.attitudeRoll);
 	AH.fillScreen(WHITE);
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
 	int szer = 2;
 	int y1;
 	int y2;
-	y1 = (srodekY - AH.width()/2*(tan(radians(deg))));
-	y2 = (srodekY + AH.width()/2*(tan(radians(deg))));
+	y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
+	y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 
 	AH.drawLine(0, y1, AH.width(), y2, BLACK);

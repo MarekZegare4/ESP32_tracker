@@ -6,14 +6,13 @@
 #include "mavlink/mav.h"
 #include "gps/gps.h"
 
-QueueHandle_t queue;
 displayElements dispElem;
 
 void setup() {
-  Serial.begin(115200);
-  queue = xQueueCreate(2, sizeof(packet));
+  Serial.begin(57600);
 
   ServoInitialize();
+  CreateQueue();
   MavlinkInitialize();
   BridgeInitialize();
   DisplayInitialize();
@@ -22,7 +21,7 @@ void setup() {
   xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
   xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 1, NULL, 1);
-  xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
+  //xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
   xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
   xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
   

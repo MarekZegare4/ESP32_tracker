@@ -7,6 +7,8 @@ class packet {
     uint8_t buf[256];
 };
 
+void CreateQueue();
+packet AccessQueue();
 void BridgeInitialize();
 void serialFlushRx();
 void BridgeTask(void * parameters);

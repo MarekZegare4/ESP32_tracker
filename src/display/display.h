@@ -5,6 +5,7 @@ class displayElements {
 	public:
 		String gcsCompass;
 		String mavStatusMsg;
+		float attitudeRoll;
 };
 
 void Menu();
