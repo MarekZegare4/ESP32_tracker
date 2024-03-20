@@ -27,7 +27,7 @@ GFXcanvas1 TXT(display.width()/2, display.width()/2); // text part of the screen
 
 double deg = 0;
 
-void menu() {
+void Menu() {
 	// Linie dzielące ekran na 3 części
     display.drawLine(display.width()/2, 0, display.width()/2, display.width()/2, BLACK);
 	display.drawLine(0, display.width()/2, display.width(), display.width()/2, BLACK);
@@ -39,7 +39,7 @@ void menu() {
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
-void artificialHorizon() {
+void ArtificialHorizon() {
 	// Rysowanie sztucznego horyzontu
 	AH.fillScreen(WHITE);
 	int srodekX = AH.width()/2;
@@ -66,10 +66,10 @@ void artificialHorizon() {
 	display.drawBitmap(display.width()/2+1, 0, AH.getBuffer(), AH.width(), AH.height(), WHITE, BLACK);
 }
 
-void ScreenTask (void * parameters) {
+void DisplayTask (void * parameters) {
 	for(;;){
-   		menu();
-		artificialHorizon();
+   		Menu();
+		ArtificialHorizon();
 		display.refresh();
     	vTaskDelay((1/FPS)/portTICK_PERIOD_MS);
   	}

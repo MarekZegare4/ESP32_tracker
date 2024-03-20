@@ -4,7 +4,7 @@
 
 #define WIFI_POWER  WIFI_POWER_2dBm
 
-extern QueueHandle_t kolejka;
+extern QueueHandle_t queue;
 
 String ssid = "mLRS AP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -76,7 +76,7 @@ void BridgeTask(void * parameters) {
       for (uint8_t i = 0; i < len; i++){
         packet.buf[i] = buf[i];
       }
-      xQueueSend(kolejka, &packet, 0);
+      xQueueSend(queue, &packet, 0);
       udp.beginPacket(ip_udp, port_udp);
       udp.write(buf, len);
       udp.endPacket();

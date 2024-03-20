@@ -7,8 +7,8 @@ class displayElements {
 		String mavStatusMsg;
 };
 
-void menu();
-void artificialHorizon();
-void ScreenTask(void * parameters);
+void Menu();
+void ArtificialHorizon();
+void DisplayTask(void * parameters);
 void DegTask(void * parameters);
 void DisplayInitialize();

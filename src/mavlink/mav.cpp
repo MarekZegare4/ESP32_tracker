@@ -3,14 +3,23 @@
 #include "bridge/bridge.h" // packet struct
 #include "display/display.h"
 
-extern QueueHandle_t kolejka;
+// Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
+
+#define LRS_RX  33
+#define LRS_TX  32
+
+extern QueueHandle_t queue;
 extern displayElements dispElem;
 
 int32_t uavLon;
 int32_t uavLat;
 int32_t uavAlt;
 
-// Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
+void MavlinkInitialize() {
+    //size_t rxbufsize = Serial2.setRxBufferSize(2*1024); // must come before uart started, retuns 0 if it fails
+    //size_t txbufsize = Serial2.setTxBufferSize(512); // must come before uart started, retuns 0 if it fails
+    Serial2.begin(57600, SERIAL_8N1, LRS_RX, LRS_TX);
+}
 
 void SendHeartbeatTask(void * parameters) {
     for(;;) {
@@ -35,8 +44,8 @@ void DecodeTelemetryTask(void * parameters){
     packet packet;
    
     for(;;){
-        if(xQueuePeek(kolejka, &packet, 10/portTICK_PERIOD_MS)) {
-            xQueueReceive(kolejka, &packet, 0);
+        if(xQueuePeek(queue, &packet, 10/portTICK_PERIOD_MS)) {
+            xQueueReceive(queue, &packet, 0);
             for (uint16_t i = 0; i < packet.len; i++) {
                 uint8_t byte = packet.buf[i];
                 if (mavlink_parse_char(chan, byte, &msg, &status)) {
