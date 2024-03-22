@@ -96,16 +96,6 @@ void DisplayTask (void * parameters) {
   	}
 }
 
-void DegTask(void * parameters) {
-	for(;;) {
-		deg += 0.1;
-		vTaskDelay(10 / portTICK_PERIOD_MS);
-		if (deg > 90) {
-			deg = 0;
-		}
-	}
-}
-
 void DisplayInitialize(){
 	//hspi.begin();
 	display.begin();

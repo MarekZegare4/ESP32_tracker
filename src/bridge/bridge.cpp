@@ -26,6 +26,7 @@ unsigned long is_connected_tlast_ms;
 unsigned long serial_data_received_tfirst_ms;
 
 void BridgeInitialize(){
+    serialFlushRx();
     WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
     WiFi.softAPConfig(ip, ip_gateway, netmask);
     String ssid_full = ssid + " UDP";
@@ -92,5 +93,6 @@ void BridgeTask(void * parameters) {
       udp.write(buf, len);
       udp.endPacket();
     }
+    vTaskDelay(1 / portTICK_PERIOD_MS);
   }
 }

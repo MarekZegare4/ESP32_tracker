@@ -18,13 +18,11 @@ void setup() {
   DisplayInitialize();
   MagInitialize();
 
-  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+  xTaskCreate(BridgeTask, "Bridge", 5000, NULL, 10, NULL);
   xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 1, NULL, 1);
-  //xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
   xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
-  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
-  
+  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL); 
 }
 
 
@@ -36,6 +34,6 @@ void loop() {
   //   delay(100);
   // }else{
   //   Serial.println("Ping servo ID error!");
-  //   delay(2000);
+  delay(2000);
   // }
 }

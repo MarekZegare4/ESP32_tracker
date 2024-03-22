@@ -31,7 +31,7 @@ void SendHeartbeatTask(void * parameters) {
         uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
         if (Serial2.availableForWrite()) {
             Serial2.write(buf, len);
-            //Serial.print("Wyslano HB\n");
+            Serial.print("Wyslano HB\n");
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
@@ -43,14 +43,15 @@ void DecodeTelemetryTask(void * parameters){
     int chan = MAVLINK_COMM_0;
     packet packet;
     for(;;){
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        printf("Decoding telemetry\n");
+        //vTaskDelay(10 / portTICK_PERIOD_MS);
         //if(xQueuePeek(queue, &packet, 10/portTICK_PERIOD_MS)) {
             //Serial.print("Packet received\n");
             packet = AccessQueue();
             for (uint16_t i = 0; i < packet.len; i++) {
                 uint8_t byte = packet.buf[i];
                 if (mavlink_parse_char(chan, byte, &msg, &status)) {
-                    //Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+                    Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
                     switch(msg.msgid) {
                         case MAVLINK_MSG_ID_HEARTBEAT: // ID for HEARTBEAT
                             {
