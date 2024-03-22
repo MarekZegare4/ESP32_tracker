@@ -16,11 +16,11 @@ void setup() {
   DisplayInitialize();
   MagInitialize();
 
-  xTaskCreate(WiFiBridgeTask, "Bridge", 5000, NULL, 10, NULL);
-  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 6, NULL);
-  xTaskCreatePinnedToCore(DisplayTask, "Display", 5000, NULL, 8, NULL, 1);
-  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 7, NULL);
-  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 9, NULL);
+  xTaskCreate(WiFiBridgeTask, "Bridge", 5000, NULL, 5, NULL);
+  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 2, NULL);
+  xTaskCreate(DisplayTask, "Display", 5000, NULL, 4, NULL);
+  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 3, NULL);
+  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 4, NULL);
 }
 
 void loop() {

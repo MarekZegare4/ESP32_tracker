@@ -93,6 +93,6 @@ void WiFiBridgeTask(void * parameters) {
       udp.endPacket();
       xQueueSend(queue, &packet, 10);
     }
-    vTaskDelay(1/portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
