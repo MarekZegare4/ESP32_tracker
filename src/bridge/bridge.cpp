@@ -7,7 +7,7 @@
 static QueueHandle_t queue;
 
 // WiFi settings
-String ssid = "mLRS AP"; // Wifi name
+String ssid = "mLRS UDP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
 
 IPAddress ip(192, 168, 4, 55); // connect to this IP // MissionPlanner default is 127.0.0.1, so enter
@@ -23,7 +23,7 @@ int wifi_channel = 6;
 
 // Bluetooth settings
 BluetoothSerial SerialBT;
-String device_name = "ESP32-BT"; // Bluetooth device name
+String device_name = "mLRS BT"; // Bluetooth device name
 
 // Connection timing
 unsigned long led_tlast_ms;
@@ -54,7 +54,7 @@ void serialFlushRx(void)
 void WiFiBridgeInitialize() {
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
   WiFi.softAPConfig(ip, ip_gateway, netmask);
-  String ssid_full = ssid + " UDP";
+  String ssid_full = ssid;
   WiFi.softAP(ssid_full.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
   WiFi.setTxPower(WIFI_POWER);
   udp.begin(port_udp);

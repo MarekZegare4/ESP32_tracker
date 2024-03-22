@@ -6,25 +6,21 @@
 #include "mavlink/mav.h"
 #include "gps/gps.h"
 
-displayElements dispElem;
-
 void setup() {
   Serial.begin(57600);
-
-  ServoInitialize();
+  
   CreateQueue();
+  ServoInitialize();
   MavlinkInitialize();
   WiFiBridgeInitialize();
   DisplayInitialize();
   MagInitialize();
 
   xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
-  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 1, NULL);
-  xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 1, NULL, 1);
-  //xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
-  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
-  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
-  
+  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 5, NULL);
+  xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 2, NULL, 1);
+  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 3, NULL);
+  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 2, NULL);
 }
 
 
@@ -38,4 +34,6 @@ void loop() {
   //   Serial.println("Ping servo ID error!");
   //   delay(2000);
   // }
+  vTaskPrioritySet(NULL, 10);
+  vTaskSuspend(NULL);
 }

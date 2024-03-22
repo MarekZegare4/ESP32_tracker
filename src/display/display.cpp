@@ -3,38 +3,19 @@
 #include <mat.h>
 #include <SPI.h>
 #include "display.h"
+#include "gfx.h"
 
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 
-const unsigned char epd_bitmap_Interface_Essential_Alert_Circle_1__Streamline_Pixel [] PROGMEM = {
-		0xff, 0x0f, 0xf0, 0xfc, 0x03, 0xf0, 0xf0, 0x00, 0xf0, 0xe1, 0xf8, 0x70, 0xc1, 0xf8, 0x30, 0xc1, 
-	0xe8, 0x30, 0x81, 0xe8, 0x10, 0x81, 0xf8, 0x10, 0x01, 0xf8, 0x00, 0x00, 0xf0, 0x00, 0x00, 0xf0, 
-	0x00, 0x00, 0x00, 0x00, 0x80, 0x60, 0x10, 0x80, 0xf0, 0x10, 0xc0, 0xf0, 0x30, 0xc0, 0xf0, 0x30, 
-	0xe0, 0xf0, 0x70, 0xf0, 0x00, 0xf0, 0xfc, 0x03, 0xf0, 0xff, 0x0f, 0xf0
-};
-const unsigned char crosshair [] PROGMEM = {
-	0xff, 0xf0, 0x03, 0xff, 0xc0, 0x92, 0x50, 0x02, 0x49, 0x40, 0xc9, 0x30, 0x03, 0x24, 0xc0, 0xff, 
-	0xbf, 0xfe, 0xff, 0xc0, 0x00, 0x84, 0x92, 0x40, 0x00, 0x00, 0xd2, 0x49, 0x40, 0x00, 0x00, 0xff, 
-	0xff, 0xc0, 0x00
-};
-
-extern displayElements dispElem;
-// #define SHARP_SCK  14
-// #define SHARP_MOSI 13
-// #define SHARP_SS   15
-
-// #define SHARP_SCK  18
-// #define SHARP_MOSI 23
-#define SHARP_SS   5
-
-SPIClass vspi = SPIClass(VSPI);
-
+#define SHARP_SS 5
 #define BLACK 0
 #define WHITE 1
 #define FREQ_2MHZ 2000000
 #define FPS 30
 
+displayElements dispElem;
+SPIClass vspi = SPIClass(VSPI);
 Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, FREQ_2MHZ);
 
 int width = display.width();
@@ -44,6 +25,9 @@ GFXcanvas1 AH(150, 150); // Artificial Horizon
 GFXcanvas1 TXT(width/2, width/2); // text part of the screen
 
 double deg = 0;
+int srodekX = AH.width()/2;
+int srodekY = AH.width()/2;
+int szer = 2;
 
 void MainScreen() {
     TXT.fillScreen(WHITE);
@@ -61,13 +45,8 @@ void ArtificialHorizon() {
 	// Rysowanie sztucznego horyzontu
 	deg = degrees(dispElem.attitudeRoll);
 	AH.fillScreen(WHITE);
-	int srodekX = AH.width()/2;
-	int srodekY = AH.width()/2;
-	int szer = 2;
-	int y1;
-	int y2;
-	y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
-	y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
+	int y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
+	int y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
@@ -96,18 +75,7 @@ void DisplayTask (void * parameters) {
   	}
 }
 
-void DegTask(void * parameters) {
-	for(;;) {
-		deg += 0.1;
-		vTaskDelay(10 / portTICK_PERIOD_MS);
-		if (deg > 90) {
-			deg = 0;
-		}
-	}
-}
-
 void DisplayInitialize(){
-	//hspi.begin();
 	display.begin();
 	display.clearDisplay();
 }
