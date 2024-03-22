@@ -1,5 +1,4 @@
 #include <WiFi.h>
-#include <BluetoothSerial.h>
 #include <Arduino.h>
 #include "bridge.h"
 
@@ -21,10 +20,6 @@ int port_tcp = 5760; // connect to this port per TCP // MissionPlanner default i
 int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
 int wifi_channel = 6;
 
-// Bluetooth settings
-BluetoothSerial SerialBT;
-String device_name = "mLRS BT"; // Bluetooth device name
-
 // Connection timing
 unsigned long led_tlast_ms;
 bool is_connected;
@@ -40,10 +35,6 @@ packet AccessQueue() {
   if (xQueueReceive(queue, &packet, portMAX_DELAY) == pdTRUE) {
     return packet;
   }
-  else {
-    packet.len = 0;
-    return packet;
-  }
 }
 
 void serialFlushRx(void)
@@ -52,23 +43,16 @@ void serialFlushRx(void)
 }
 
 void WiFiBridgeInitialize() {
+  serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
   WiFi.softAPConfig(ip, ip_gateway, netmask);
-  String ssid_full = ssid;
-  WiFi.softAP(ssid_full.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
+  WiFi.softAP(ssid.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
   WiFi.setTxPower(WIFI_POWER);
   udp.begin(port_udp);
 
   is_connected = false;
   is_connected_tlast_ms = 0;
   serial_data_received_tfirst_ms = 0;
-}
-
-void BtBridgeInitialize(){
-  BluetoothSerial SerialBT;
-  Serial.begin(115200);
-  SerialBT.begin(device_name); //Bluetooth device name
-  Serial.printf("The device with name \"%s\" is started.\nNow you can pair it with Bluetooth!\n", device_name.c_str());
 }
 
 void WiFiBridgeTask(void * parameters) {
@@ -104,23 +88,11 @@ void WiFiBridgeTask(void * parameters) {
       for (uint8_t i = 0; i < len; i++){
         packet.buf[i] = buf[i];
       }
-      xQueueSend(queue, &packet, 0);
       udp.beginPacket(ip_udp, port_udp);
       udp.write(buf, len);
       udp.endPacket();
+      xQueueSend(queue, &packet, 10);
     }
-  }
-}
-
-void BtBridgeTask(void * parameters) {
-  for(;;){
-   // uint8_t buf[256]; // working buffer
-    if (Serial.available()) {
-      SerialBT.write(Serial.read());
-    }
-    if (SerialBT.available()) {
-      Serial.write(SerialBT.read());
-    }
-    vTaskDelay(20 / portTICK_PERIOD_MS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
   }
 }

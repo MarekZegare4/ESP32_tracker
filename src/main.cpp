@@ -8,21 +8,20 @@
 
 void setup() {
   Serial.begin(57600);
-  
-  CreateQueue();
+
   ServoInitialize();
+  CreateQueue();
   MavlinkInitialize();
   WiFiBridgeInitialize();
   DisplayInitialize();
   MagInitialize();
 
-  xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
-  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 5, NULL);
-  xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 2, NULL, 1);
-  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 3, NULL);
-  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 2, NULL);
+  xTaskCreate(WiFiBridgeTask, "Bridge", 5000, NULL, 10, NULL);
+  xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 6, NULL);
+  xTaskCreatePinnedToCore(DisplayTask, "Display", 5000, NULL, 8, NULL, 1);
+  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 7, NULL);
+  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 9, NULL);
 }
-
 
 void loop() {
   // int ID = sms_sts.Ping(TEST_ID);
@@ -32,8 +31,6 @@ void loop() {
   //   delay(100);
   // }else{
   //   Serial.println("Ping servo ID error!");
-  //   delay(2000);
+  delay(2000);
   // }
-  vTaskPrioritySet(NULL, 10);
-  vTaskSuspend(NULL);
 }

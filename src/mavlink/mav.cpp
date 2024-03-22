@@ -50,7 +50,7 @@ void DecodeTelemetryTask(void * parameters){
             for (uint16_t i = 0; i < packet.len; i++) {
                 uint8_t byte = packet.buf[i];
                 if (mavlink_parse_char(chan, byte, &msg, &status)) {
-                    //Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+                    Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
                     switch(msg.msgid) {
                         case MAVLINK_MSG_ID_HEARTBEAT: // ID for HEARTBEAT
                             {
@@ -64,7 +64,6 @@ void DecodeTelemetryTask(void * parameters){
                                 // Get all fields in payload (into sys_status)
                                 mavlink_statustext_t sys_status;
                                 mavlink_msg_statustext_decode(&msg, &sys_status);
-                                dispElem.mavStatusMsg = sys_status.text;
                                 break;
                             }
                         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
@@ -81,9 +80,6 @@ void DecodeTelemetryTask(void * parameters){
                             {
                             // Get just one field from payload
                             mavlink_gps_input_t gps_input;
-                            Serial.print("Visible sats ");
-                            Serial.print(gps_input.satellites_visible);
-                            Serial.print('\n');
                             }
                             break;
                         case MAVLINK_MSG_ID_ATTITUDE: // ID for ATTITUDE
@@ -92,6 +88,7 @@ void DecodeTelemetryTask(void * parameters){
                                 mavlink_attitude_t attitude;
                                 mavlink_msg_attitude_decode(&msg, &attitude);
                                 dispElem.attitudeRoll = attitude.roll;
+                                //SendAttitude(attitude);
                             }
                             break;
                         default:

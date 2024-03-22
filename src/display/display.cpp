@@ -1,10 +1,4 @@
-#include <Adafruit_GFX.h>
-#include <Adafruit_SharpMem.h>
-#include <mat.h>
-#include <SPI.h>
 #include "display.h"
-#include "gfx.h"
-
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 
@@ -15,6 +9,7 @@
 #define FPS 30
 
 displayElements dispElem;
+
 SPIClass vspi = SPIClass(VSPI);
 Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, FREQ_2MHZ);
 
@@ -25,9 +20,6 @@ GFXcanvas1 AH(150, 150); // Artificial Horizon
 GFXcanvas1 TXT(width/2, width/2); // text part of the screen
 
 double deg = 0;
-int srodekX = AH.width()/2;
-int srodekY = AH.width()/2;
-int szer = 2;
 
 void MainScreen() {
     TXT.fillScreen(WHITE);
@@ -45,8 +37,13 @@ void ArtificialHorizon() {
 	// Rysowanie sztucznego horyzontu
 	deg = degrees(dispElem.attitudeRoll);
 	AH.fillScreen(WHITE);
-	int y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
-	int y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
+	int srodekX = AH.width()/2;
+	int srodekY = AH.width()/2;
+	int szer = 2;
+	int y1;
+	int y2;
+	y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
+	y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
@@ -78,4 +75,8 @@ void DisplayTask (void * parameters) {
 void DisplayInitialize(){
 	display.begin();
 	display.clearDisplay();
+}
+
+void SendAttitude(mavlink_attitude_t attitude){
+	dispElem.attitudeRoll = attitude.roll;
 }

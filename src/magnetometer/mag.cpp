@@ -9,6 +9,7 @@ extern displayElements dispElem;
 DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 
 void MagInitialize() {
+    bmm150.begin();
     bmm150.setOperationMode(BMM150_POWERMODE_NORMAL);
     bmm150.setPresetMode(BMM150_PRESETMODE_HIGHACCURACY);
     bmm150.setRate(BMM150_DATA_RATE_10HZ);
