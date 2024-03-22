@@ -3,6 +3,8 @@
 #include "geoTransform/geoTransform.h"
 #include <SCServo.h>
 
+// https://www.waveshare.com/wiki/ST3020_Servo#Overview
+
 #define SERVO_RX 18
 #define SERVO_TX 19
 
@@ -11,8 +13,6 @@ SMS_STS st;
 extern int32_t uavLat;
 extern int32_t uavLon;
 extern int32_t uavAlt;
-
-
 
 std::tuple<float, float, float> distAziElev;
 

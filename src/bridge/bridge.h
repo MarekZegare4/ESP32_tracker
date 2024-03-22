@@ -9,6 +9,8 @@ class packet {
 
 void CreateQueue();
 packet AccessQueue();
-void BridgeInitialize();
+void WiFiBridgeInitialize();
+void BtBridgeInitialize();
 void serialFlushRx();
-void BridgeTask(void * parameters);
+void WiFiBridgeTask(void * parameters);
+void BtBridgeTask(void * parameters);

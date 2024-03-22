@@ -14,11 +14,11 @@ void setup() {
   ServoInitialize();
   CreateQueue();
   MavlinkInitialize();
-  BridgeInitialize();
+  WiFiBridgeInitialize();
   DisplayInitialize();
   MagInitialize();
 
-  xTaskCreatePinnedToCore(BridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
   xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 1, NULL);
   xTaskCreatePinnedToCore(DisplayTask, "Display", 2000, NULL, 1, NULL, 1);
   //xTaskCreate(DegTask, "Deg", 1000, NULL, 1, NULL);
