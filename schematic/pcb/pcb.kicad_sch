@@ -2028,7 +2028,7 @@
     (uuid d5f9f617-fcbe-4c3c-ac3d-29db4ed9c410)
   )
 
-  (text "USB <-> UART" (at 83.82 18.415 0)
+  (text "CP2102" (at 83.82 18.415 0)
     (effects (font (size 2.54 2.54) (thickness 0.508) bold) (justify left bottom))
     (uuid 4547dc8d-5629-4f01-8404-7e70a06dc2b6)
   )
@@ -2045,7 +2045,7 @@
     (effects (font (size 2.54 2.54) (thickness 0.508) bold) (justify left bottom))
     (uuid d734856c-57da-46b7-8921-6a294007b7b4)
   )
-  (text "3V3 LDO" (at 14.605 17.78 0)
+  (text "3.3 LDO" (at 14.605 17.78 0)
     (effects (font (size 2.54 2.54) (thickness 0.508) bold) (justify left bottom))
     (uuid ff7e41d4-6940-48ad-bdc2-94c4b91a83d3)
   )
