@@ -43,7 +43,7 @@ void DecodeTelemetryTask(void * parameters){
     int chan = MAVLINK_COMM_0;
     packet packet;
     for(;;){
-        vTaskDelay(20 / portTICK_PERIOD_MS);
+        vTaskDelay(10);
         //if(xQueuePeek(queue, &packet, 10/portTICK_PERIOD_MS)) {
             //Serial.print("Packet received\n");
             packet = AccessQueue();

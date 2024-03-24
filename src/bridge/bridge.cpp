@@ -58,6 +58,7 @@ void WiFiBridgeInitialize() {
 void WiFiBridgeTask(void * parameters) {
   packet packet;
   for(;;){
+    
     unsigned long tnow_ms = millis();
     if (is_connected && (tnow_ms - is_connected_tlast_ms > 2000)) { // nothing from GCS for 2 secs
     is_connected = false;
@@ -93,6 +94,6 @@ void WiFiBridgeTask(void * parameters) {
       udp.endPacket();
       xQueueSend(queue, &packet, 10);
     }
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+    vTaskDelay(1);
   }
 }

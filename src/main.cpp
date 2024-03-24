@@ -31,6 +31,7 @@ void loop() {
   //   delay(100);
   // }else{
   //   Serial.println("Ping servo ID error!");
-  delay(2000);
+  //vTaskDelay(1000/portTICK_PERIOD_MS);
   // }
+  vTaskDelay(10);
 }
