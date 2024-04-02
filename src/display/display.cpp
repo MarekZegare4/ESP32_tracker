@@ -40,10 +40,8 @@ void ArtificialHorizon() {
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
 	int szer = 2;
-	int y1;
-	int y2;
-	y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
-	y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
+	int y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
+	int y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);

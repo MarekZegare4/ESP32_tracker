@@ -7,7 +7,7 @@
 #include "gps/gps.h"
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(115200);
 
   ServoInitialize();
   CreateQueue();
