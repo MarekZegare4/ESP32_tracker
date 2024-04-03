@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "tracking/tracking.h"
-#include "display/display.h"
+#include "gui/gui.h"
 #include "bridge/bridge.h"
 #include "mavlink/mav.h"
 #include "gps/gps.h"

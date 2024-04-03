@@ -4,7 +4,8 @@
 #include <SCServo.h>
 #include <DFRobot_BMM150.h>
 #include <SPI.h>
-#include "display/display.h"
+#include "gui/gui.h"
+#include "mavlink/mav.h"
 
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
 
@@ -15,11 +16,8 @@ SMS_STS st;
 DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 
 extern displayElements dispElem;
-extern int32_t uavLat;
-extern int32_t uavLon;
-extern int32_t uavAlt;
 
-std::tuple<float, float, float> distAziElev;
+angleValues distAziElev;
 
 void TrackingInitialize(){
     Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
@@ -34,9 +32,6 @@ void TrackingInitialize(){
 void TrackingTask(void * parameters) {
     for(;;) {
         wgs84_coord uavPos;
-        uavPos.lat = uavLat;
-        uavPos.lon = uavLon;
-        uavPos.alt = uavAlt;
         distAziElev = dist_azi_elev(uavPos, uavPos);
         sBmm150MagData_t magData = bmm150.getGeomagneticData();
         float compassDegree = bmm150.getCompassDegree();

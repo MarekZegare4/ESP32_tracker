@@ -1,6 +1,6 @@
 #include "common/mavlink.h"
 #include <Arduino.h>
-#include "display/display.h"
+#include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "bridge/bridge.h"
 
@@ -8,20 +8,28 @@
 
 #define LRS_RX  33
 #define LRS_TX  32
+#define MLRS_BAUD 57600
 
-extern displayElements dispElem;
 static QueueHandle_t queue;
-
-int32_t uavLon;
-int32_t uavLat;
-int32_t uavAlt;
+static uav_data uav;
+static bool isConnected = false;
 
 bool bridge_active = false;
 
+bool GetConnectionStatus() {
+    return isConnected;
+}
+
+std::tuple<uint32_t, uint32_t, uint32_t> GetUavPosition() {
+    return std::make_tuple(uav.global_lat, uav.global_lon, uav.global_alt);
+}
+
+std::tuple<float, float, float> GetUavAttitude() {
+    return std::make_tuple(uav.pitch, uav.roll, uav.yaw);
+}
+
 void MavlinkInitialize() {
-    //size_t rxbufsize = Serial2.setRxBufferSize(2*1024); // must come before uart started, retuns 0 if it fails
-    //size_t txbufsize = Serial2.setTxBufferSize(512); // must come before uart started, retuns 0 if it fails
-    Serial2.begin(57600, SERIAL_8N1, LRS_RX, LRS_TX);
+    Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
 }
 
 void SendHeartbeatTask(void * parameters) {
@@ -64,7 +72,6 @@ void DecodeTelemetryTask(void * parameters){
     mavlink_status_t status;
     mavlink_message_t msg;
     int chan = MAVLINK_COMM_0;
-    dispElem.isConnected = false;
     for(;;){
         uint8_t buf[256]; // working buffer
         if (Serial2.available()) {
@@ -73,9 +80,10 @@ void DecodeTelemetryTask(void * parameters){
                 xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
                 packet packet;
                 packet.len = len;
-                for (uint8_t i = 0; i < len; i++){
-                    packet.buf[i] = buf[i];
-                }
+                // for (uint8_t i = 0; i < len; i++){
+                //     packet.buf[i] = buf[i];
+                // }
+                std::copy(buf, buf+len, packet.buf);
                 xQueueSend(queue, &packet, portMAX_DELAY);
             }
             for (uint16_t i = 0; i < len; i++) {
@@ -100,17 +108,17 @@ void DecodeTelemetryTask(void * parameters){
                         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
                             {
                             // Get all fields in payload (into global_position)
-                            mavlink_global_position_int_t global_position;
-                            mavlink_msg_global_position_int_decode(&msg, &global_position);
-                            uavLat = global_position.lat;
-                            uavLon = global_position.lon;
-                            uavAlt = global_position.alt;
+                                mavlink_global_position_int_t global_position;
+                                mavlink_msg_global_position_int_decode(&msg, &global_position);
+                                uav.global_lat = global_position.lat;
+                                uav.global_lon = global_position.lon;
+                                uav.global_alt = global_position.alt;
                             }
                             break;
                         case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
                             {
                             // Get just one field from payload
-                            mavlink_gps_input_t gps_input;
+                                mavlink_gps_input_t gps_input;
                             }
                             break;
                         case MAVLINK_MSG_ID_ATTITUDE: // ID for ATTITUDE
@@ -118,7 +126,9 @@ void DecodeTelemetryTask(void * parameters){
                                 // Get all fields in payload (into attitude)
                                 mavlink_attitude_t attitude;
                                 mavlink_msg_attitude_decode(&msg, &attitude);
-                                dispElem.attitudeRoll = attitude.roll;
+                                uav.pitch = attitude.pitch;
+                                uav.roll = attitude.roll;
+                                uav.yaw = attitude.yaw;
                                 //SendAttitude(attitude);
                             }
                             break;

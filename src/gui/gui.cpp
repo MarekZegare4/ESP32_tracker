@@ -1,4 +1,4 @@
-#include "display.h"
+#include "gui.h"
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 

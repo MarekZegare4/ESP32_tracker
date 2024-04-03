@@ -19,7 +19,8 @@ cart_coord cart_transform(wgs84_coord &coord) {
   return transform;
 };
 
-std::tuple<float, float, float> dist_azi_elev(wgs84_coord &c1, wgs84_coord &c2){
+angleValues dist_azi_elev(wgs84_coord &c1, wgs84_coord &c2){
+  angleValues values;
   int R = 6371000;
   double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
   double dlon = radians((c2.lon - c1.lon) / CONV_COEFF);
@@ -34,6 +35,8 @@ std::tuple<float, float, float> dist_azi_elev(wgs84_coord &c1, wgs84_coord &c2){
   double d3 = (R + c1.alt) * sin(phi);
   double d2 = c2.alt - c1.alt * cos(phi) + R * (1 - cos(phi));
   double elevation = degrees(atan2(c2.alt - c1.alt*cos(phi) + R * (1 - cos(phi)), (R + c1.alt) * sin(phi)));
-
-  return {d, azimuth, elevation};
+  values.azimuth = azimuth;
+  values.elevation = elevation;
+  values.distance = d;
+  return values;
 }
