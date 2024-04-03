@@ -42,60 +42,58 @@ void DecodeTelemetryTask(void * parameters){
     mavlink_message_t msg;
     int chan = MAVLINK_COMM_0;
     packet packet;
+    dispElem.isConnected = false;
     for(;;){
-        vTaskDelay(10);
-        //if(xQueuePeek(queue, &packet, 10/portTICK_PERIOD_MS)) {
-            //Serial.print("Packet received\n");
-            packet = AccessQueue();
-            for (uint16_t i = 0; i < packet.len; i++) {
-                uint8_t byte = packet.buf[i];
-                if (mavlink_parse_char(chan, byte, &msg, &status)) {
-                    //Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
-                    switch(msg.msgid) {
-                        case MAVLINK_MSG_ID_HEARTBEAT: // ID for HEARTBEAT
-                            {
-                                // Get all fields in payload (into heartbeat)
-                                mavlink_heartbeat_t heartbeat;
-                                mavlink_msg_heartbeat_decode(&msg, &heartbeat);
-                                break;
-                            }
-                        case MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN: // ID for SYS_STATUS
-                            {
-                                // Get all fields in payload (into sys_status)
-                                mavlink_statustext_t sys_status;
-                                mavlink_msg_statustext_decode(&msg, &sys_status);
-                                break;
-                            }
-                        case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
-                            {
-                            // Get all fields in payload (into global_position)
-                            mavlink_global_position_int_t global_position;
-                            mavlink_msg_global_position_int_decode(&msg, &global_position);
-                            uavLat = global_position.lat;
-                            uavLon = global_position.lon;
-                            uavAlt = global_position.alt;
-                            }
+        packet = AccessQueue();
+        for (uint16_t i = 0; i < packet.len; i++) {
+            uint8_t byte = packet.buf[i];
+            if (mavlink_parse_char(chan, byte, &msg, &status)) {
+                //Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+                switch(msg.msgid) {
+                    case MAVLINK_MSG_ID_HEARTBEAT: // ID for HEARTBEAT
+                        {
+                            // Get all fields in payload (into heartbeat)
+                            mavlink_heartbeat_t heartbeat;
+                            mavlink_msg_heartbeat_decode(&msg, &heartbeat);
                             break;
-                        case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
-                            {
-                            // Get just one field from payload
-                            mavlink_gps_input_t gps_input;
-                            }
+                        }
+                    case MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN: // ID for SYS_STATUS
+                        {
+                            // Get all fields in payload (into sys_status)
+                            mavlink_statustext_t sys_status;
+                            mavlink_msg_statustext_decode(&msg, &sys_status);
                             break;
-                        case MAVLINK_MSG_ID_ATTITUDE: // ID for ATTITUDE
-                            {
-                                // Get all fields in payload (into attitude)
-                                mavlink_attitude_t attitude;
-                                mavlink_msg_attitude_decode(&msg, &attitude);
-                                dispElem.attitudeRoll = attitude.roll;
-                                //SendAttitude(attitude);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                        }
+                    case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
+                        {
+                        // Get all fields in payload (into global_position)
+                        mavlink_global_position_int_t global_position;
+                        mavlink_msg_global_position_int_decode(&msg, &global_position);
+                        uavLat = global_position.lat;
+                        uavLon = global_position.lon;
+                        uavAlt = global_position.alt;
+                        }
+                        break;
+                    case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
+                        {
+                        // Get just one field from payload
+                        mavlink_gps_input_t gps_input;
+                        }
+                        break;
+                    case MAVLINK_MSG_ID_ATTITUDE: // ID for ATTITUDE
+                        {
+                            // Get all fields in payload (into attitude)
+                            mavlink_attitude_t attitude;
+                            mavlink_msg_attitude_decode(&msg, &attitude);
+                            dispElem.attitudeRoll = attitude.roll;
+                            //SendAttitude(attitude);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
-        //}
+        }
     }
+    vTaskDelay(10);
 }

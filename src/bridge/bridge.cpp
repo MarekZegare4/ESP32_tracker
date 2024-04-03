@@ -32,7 +32,7 @@ void CreateQueue() {
 
 packet AccessQueue() {
   packet packet;
-  if (xQueueReceive(queue, &packet, portMAX_DELAY) == pdTRUE) {
+  if (xQueueReceive(queue, &packet, portMAX_DELAY)) {
     return packet;
   }
 }
@@ -42,7 +42,7 @@ void serialFlushRx(void)
   while (Serial2.available() > 0) { Serial2.read(); }
 }
 
-void WiFiBridgeInitialize() {
+void WiFiBridgeInitialize() { // Do wyczyszczenia, niepotrzebnie mierzony czas
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
   WiFi.softAPConfig(ip, ip_gateway, netmask);
@@ -94,6 +94,6 @@ void WiFiBridgeTask(void * parameters) {
       udp.endPacket();
       xQueueSend(queue, &packet, 10);
     }
-    vTaskDelay(1);
+    vTaskDelay(10);
   }
 }

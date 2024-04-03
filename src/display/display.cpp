@@ -19,8 +19,6 @@ int height = display.height();
 GFXcanvas1 AH(150, 150); // Artificial Horizon
 GFXcanvas1 TXT(width/2, width/2); // text part of the screen
 
-double deg = 0;
-
 void MainScreen() {
     TXT.fillScreen(WHITE);
     TXT.setTextSize(1);
@@ -29,19 +27,23 @@ void MainScreen() {
 	TXT.println("Mag heading: " + dispElem.gcsCompass);
 	TXT.setCursor(5, 20);
 	TXT.println(dispElem.mavStatusMsg);
-	TXT.drawBitmap(20,20, epd_bitmap_Interface_Essential_Alert_Circle_1__Streamline_Pixel, 20, 20, WHITE, BLACK);
+	TXT.setCursor(5, 30);
+	if (dispElem.isConnected) {
+		TXT.println("Connected");
+	} else {
+		TXT.println("Disconnected");
+	}
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
 void ArtificialHorizon() {
 	// Rysowanie sztucznego horyzontu
-	deg = degrees(dispElem.attitudeRoll);
 	AH.fillScreen(WHITE);
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
 	int szer = 2;
-	int y1 = (srodekY + AH.width()/2*(tan(radians(deg))));
-	int y2 = (srodekY - AH.width()/2*(tan(radians(deg))));
+	int y1 = (srodekY + AH.width()/2*(tan(radians(dispElem.attitudeRoll))));
+	int y2 = (srodekY - AH.width()/2*(tan(radians(dispElem.attitudeRoll))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);

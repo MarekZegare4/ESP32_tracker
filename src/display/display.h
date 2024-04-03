@@ -11,7 +11,8 @@ class displayElements {
 	public:
 		String gcsCompass;
 		String mavStatusMsg;
-		float attitudeRoll;
+		float attitudeRoll = 0;
+		bool isConnected = false;
 };
 
 void Menu();
