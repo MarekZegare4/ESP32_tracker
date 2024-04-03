@@ -14,7 +14,7 @@ static QueueHandle_t queue;
 static uav_data uav;
 static bool isConnected = false;
 
-bool bridge_active = false;
+bool bridge_active = true;
 
 bool GetConnectionStatus() {
     return isConnected;
@@ -77,7 +77,7 @@ void DecodeTelemetryTask(void * parameters){
         if (Serial2.available()) {
             int len = Serial2.read(buf, sizeof(buf));
             if (bridge_active){
-                xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+                //xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
                 packet packet;
                 packet.len = len;
                 // for (uint8_t i = 0; i < len; i++){

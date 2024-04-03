@@ -40,11 +40,10 @@ void WiFiBridgeTask(void * parameters) {
         Serial2.write(buf, len);
       }
     }
-    if (PacketAvailable()){
-      udp.beginPacket(ip_udp, port_udp);
-      udp.write(packet.buf, packet.len);
-      udp.endPacket();
-    }
+    packet = AccessQueue();
+    udp.beginPacket(ip_udp, port_udp);
+    udp.write(packet.buf, packet.len);
+    udp.endPacket();
     vTaskDelay(10);
   }
 }
