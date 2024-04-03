@@ -16,7 +16,7 @@ void setup() {
   DisplayInitialize();
   MagInitialize();
 
-  xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+ // xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
   xTaskCreate(MagTask, "Magnetometer", 2000, NULL, 1, NULL);
   xTaskCreate(DisplayTask, "Display", 5000, NULL, 1, NULL);
   xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
