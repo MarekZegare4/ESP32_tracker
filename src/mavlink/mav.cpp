@@ -10,8 +10,9 @@
 #define LRS_TX  32
 #define MLRS_BAUD 57600
 
-static QueueHandle_t queue;
-static uav_data uav;
+static QueueHandle_t sQueue;
+static UavDataGPS sUavDataGPS;
+static UavDataAttitude sUavDataAttitude;
 static bool isConnected = false;
 
 bool bridge_active = true;
@@ -20,12 +21,12 @@ bool GetConnectionStatus() {
     return isConnected;
 }
 
-std::tuple<uint32_t, uint32_t, uint32_t> GetUavPosition() {
-    return std::make_tuple(uav.global_lat, uav.global_lon, uav.global_alt);
+UavDataGPS GetsUavGPS() {
+    return sUavDataGPS;
 }
 
-std::tuple<float, float, float> GetUavAttitude() {
-    return std::make_tuple(uav.pitch, uav.roll, uav.yaw);
+UavDataAttitude GetUavAttitude() {
+    return sUavDataAttitude;
 }
 
 void MavlinkInitialize() {
@@ -49,18 +50,18 @@ void SendHeartbeatTask(void * parameters) {
 }
 
 void CreateQueue() {
-    queue = xQueueCreate(1, sizeof(packet));
+    sQueue = xQueueCreate(1, sizeof(Packet));
 }
 
-packet AccessQueue() {
-  packet packet;
-  if (xQueueReceive(queue, &packet, portMAX_DELAY)) {
+Packet AccessQueue() {
+  Packet packet;
+  if (xQueueReceive(sQueue, &packet, portMAX_DELAY)) {
     return packet;
   }
 }
 
 bool PacketAvailable() {
-    return xQueuePeek(queue, NULL, 0);
+    return xQueuePeek(sQueue, NULL, 0);
 }
 
 void serialFlushRx(void)
@@ -78,13 +79,13 @@ void DecodeTelemetryTask(void * parameters){
             int len = Serial2.read(buf, sizeof(buf));
             if (bridge_active){
                 //xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
-                packet packet;
+                Packet packet;
                 packet.len = len;
                 // for (uint8_t i = 0; i < len; i++){
                 //     packet.buf[i] = buf[i];
                 // }
                 std::copy(buf, buf+len, packet.buf);
-                xQueueSend(queue, &packet, portMAX_DELAY);
+                xQueueSend(sQueue, &packet, portMAX_DELAY);
             }
             for (uint16_t i = 0; i < len; i++) {
                 uint8_t byte = buf[i];
@@ -110,9 +111,9 @@ void DecodeTelemetryTask(void * parameters){
                             // Get all fields in payload (into global_position)
                                 mavlink_global_position_int_t global_position;
                                 mavlink_msg_global_position_int_decode(&msg, &global_position);
-                                uav.global_lat = global_position.lat;
-                                uav.global_lon = global_position.lon;
-                                uav.global_alt = global_position.alt;
+                                sUavDataGPS.global_lat = global_position.lat;
+                                sUavDataGPS.global_lon = global_position.lon;
+                                sUavDataGPS.global_alt = global_position.alt;
                             }
                             break;
                         case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
@@ -126,10 +127,9 @@ void DecodeTelemetryTask(void * parameters){
                                 // Get all fields in payload (into attitude)
                                 mavlink_attitude_t attitude;
                                 mavlink_msg_attitude_decode(&msg, &attitude);
-                                uav.pitch = attitude.pitch;
-                                uav.roll = attitude.roll;
-                                uav.yaw = attitude.yaw;
-                                //SendAttitude(attitude);
+                                sUavDataAttitude.pitch = attitude.pitch;
+                                sUavDataAttitude.roll = attitude.roll;
+                                sUavDataAttitude.yaw = attitude.yaw;
                             }
                             break;
                         default:

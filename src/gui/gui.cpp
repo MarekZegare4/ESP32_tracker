@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "mavlink/mav.h"
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 
@@ -42,8 +43,8 @@ void ArtificialHorizon() {
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
 	int szer = 2;
-	int y1 = (srodekY + AH.width()/2*(tan(radians(dispElem.attitudeRoll))));
-	int y2 = (srodekY - AH.width()/2*(tan(radians(dispElem.attitudeRoll))));
+	int y1 = (srodekY + AH.width()/2*(tan((GetUavAttitude().roll))));
+	int y2 = (srodekY - AH.width()/2*(tan((GetUavAttitude().roll))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
@@ -75,8 +76,4 @@ void DisplayTask (void * parameters) {
 void DisplayInitialize(){
 	display.begin();
 	display.clearDisplay();
-}
-
-void SendAttitude(mavlink_attitude_t attitude){
-	dispElem.attitudeRoll = attitude.roll;
 }

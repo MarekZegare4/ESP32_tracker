@@ -1,27 +1,31 @@
 #pragma once
 
-class packet {
+class Packet {
   public:
     int len;
     uint8_t buf[256];
 };
 
-class uav_data {
+class UavDataGPS {
   public:
     uint32_t global_lat;
     uint32_t global_lon;
     uint32_t global_alt;
+};
+
+class UavDataAttitude {
+  public:
     float pitch;
     float roll;
     float yaw;
 };
 
 bool GetConnectionStatus();
-std::tuple<float, float, float> GetUavAttitude();
-std::tuple<uint32_t, uint32_t, uint32_t> GetUavPosition();
+UavDataAttitude GetUavAttitude();
+UavDataGPS GetUavGPS();
 void serialFlushRx();
 void CreateQueue();
-packet AccessQueue();
+Packet AccessQueue();
 bool PacketAvailable();
 void MavlinkInitialize();
 void SendHeartbeatTask(void * parameters);

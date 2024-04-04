@@ -30,7 +30,7 @@ void WiFiBridgeInitialize() { // Do wyczyszczenia, niepotrzebnie mierzony czas
 }
 
 void WiFiBridgeTask(void * parameters) {
-  packet packet;
+  Packet packet;
   for(;;){
     uint8_t buf[256]; // working buffer
     int packetSize = udp.parsePacket();
