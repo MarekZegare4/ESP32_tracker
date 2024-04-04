@@ -7,11 +7,11 @@
 
 void setup() {
   Serial.begin(115200);
-  CreateQueue();
-  TrackingInitialize();
-  MavlinkInitialize();
-  WiFiBridgeInitialize();
-  DisplayInitialize();
+  CreateQueue();          // Tworzenie kolejki dla pakietów
+  TrackingInitialize();   // Inicjalizacja serwomechanizmu i magnetometru
+  MavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
+  WiFiBridgeInitialize(); // Inicjalizacja mostu WiFi
+  DisplayInitialize();    // Inicjalizacja wyświetlacza
   xTaskCreate(TrackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL);
   xTaskCreate(DisplayTask, "Display", 5000, NULL, 1, NULL);
   xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
