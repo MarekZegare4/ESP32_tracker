@@ -5,10 +5,10 @@
 
 #define CONV_COEFF 10000000
 
-cart_coord cart_transform(wgs84_coord &coord) {
-  cart_coord transform;
+CartCoord CartTransform(Wgs84Coord &coord) {
+  CartCoord transform;
   float lat_rad = radians(coord.lat / CONV_COEFF);
-  float lon_rad = radians(coord.alt) / CONV_COEFF;
+  float lon_rad = radians(coord.alt / CONV_COEFF);
   double flat_factor = 1/298.257223563;
   double e_sq = 2 * flat_factor - pow(flat_factor, 2);
   int a = 6378137.0;
@@ -19,8 +19,8 @@ cart_coord cart_transform(wgs84_coord &coord) {
   return transform;
 };
 
-angleValues dist_azi_elev(wgs84_coord &c1, wgs84_coord &c2){
-  angleValues values;
+AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
+  AngleValues values;
   int R = 6371000;
   double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
   double dlon = radians((c2.lon - c1.lon) / CONV_COEFF);

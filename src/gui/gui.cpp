@@ -1,18 +1,17 @@
 #include "gui.h"
 #include "mavlink/mav.h"
+#include "tracking/tracking.h"
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 
-#define SHARP_SS 5
+#define DISPLAY_CS 5
 #define BLACK 0
 #define WHITE 1
 #define FREQ_2MHZ 2000000
 #define FPS 30
 
-displayElements dispElem;
-
 SPIClass vspi = SPIClass(VSPI);
-Adafruit_SharpMem display(&vspi, SHARP_SS, 400, 240, FREQ_2MHZ);
+Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
 
 int width = display.width();
 int height = display.height();
@@ -20,20 +19,17 @@ int height = display.height();
 GFXcanvas1 AH(150, 150); // Artificial Horizon
 GFXcanvas1 TXT(width/2, width/2); // text part of the screen
 
+void DisplayInitialize(){
+	display.begin();
+	display.clearDisplay();
+}
+
 void MainScreen() {
     TXT.fillScreen(WHITE);
     TXT.setTextSize(1);
     TXT.setTextColor(BLACK);
     TXT.setCursor(5, 10);
-	TXT.println("Mag heading: " + dispElem.gcsCompass);
-	TXT.setCursor(5, 20);
-	TXT.println(dispElem.mavStatusMsg);
-	TXT.setCursor(5, 30);
-	if (dispElem.isConnected) {
-		TXT.println("Connected");
-	} else {
-		TXT.println("Disconnected");
-	}
+	TXT.println("Mag heading: " + String(GetCompassDegree()));
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
@@ -71,9 +67,4 @@ void DisplayTask (void * parameters) {
 		display.refresh();
     	vTaskDelay((1/FPS)/portTICK_PERIOD_MS);
   	}
-}
-
-void DisplayInitialize(){
-	display.begin();
-	display.clearDisplay();
 }

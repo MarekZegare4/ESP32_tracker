@@ -3,3 +3,4 @@
 
 void TrackingTask(void * parameters);
 void TrackingInitialize();
+float GetCompassDegree();

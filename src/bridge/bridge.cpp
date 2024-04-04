@@ -20,7 +20,7 @@ int port_tcp = 5760; // connect to this port per TCP // MissionPlanner default i
 int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
 int wifi_channel = 6; // WiFi channel, 1-13
 
-void WiFiBridgeInitialize() { // Do wyczyszczenia, niepotrzebnie mierzony czas
+void WiFiBridgeInitialize() {
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
   WiFi.softAPConfig(ip, ip_gateway, netmask);

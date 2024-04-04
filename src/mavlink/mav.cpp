@@ -15,7 +15,7 @@ static UavDataGPS sUavDataGPS;
 static UavDataAttitude sUavDataAttitude;
 static bool isConnected = false;
 
-bool bridge_active = true;
+bool bridgeActive = true;
 
 bool GetConnectionStatus() {
     return isConnected;
@@ -77,13 +77,9 @@ void DecodeTelemetryTask(void * parameters){
         uint8_t buf[256]; // working buffer
         if (Serial2.available()) {
             int len = Serial2.read(buf, sizeof(buf));
-            if (bridge_active){
-                //xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+            if (bridgeActive){
                 Packet packet;
                 packet.len = len;
-                // for (uint8_t i = 0; i < len; i++){
-                //     packet.buf[i] = buf[i];
-                // }
                 std::copy(buf, buf+len, packet.buf);
                 xQueueSend(sQueue, &packet, portMAX_DELAY);
             }

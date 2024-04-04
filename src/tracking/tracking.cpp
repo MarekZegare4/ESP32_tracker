@@ -15,9 +15,12 @@
 SMS_STS st;
 DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 
-extern displayElements dispElem;
+static AngleValues sDistAziElev;
+static float sCompassDegree;
 
-angleValues distAziElev;
+float GetCompassDegree() {
+    return sCompassDegree;
+}
 
 void TrackingInitialize(){
     Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
@@ -31,11 +34,9 @@ void TrackingInitialize(){
 
 void TrackingTask(void * parameters) {
     for(;;) {
-        wgs84_coord uavPos;
-        distAziElev = dist_azi_elev(uavPos, uavPos);
-        sBmm150MagData_t magData = bmm150.getGeomagneticData();
-        float compassDegree = bmm150.getCompassDegree();
-        dispElem.gcsCompass = String(compassDegree);
+        Wgs84Coord uavPos;
+        sDistAziElev = DistAziElev(uavPos, uavPos);
+        sCompassDegree = bmm150.getCompassDegree();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
