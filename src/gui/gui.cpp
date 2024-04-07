@@ -38,7 +38,7 @@ void ArtificialHorizon() {
 	AH.fillScreen(WHITE);
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
-	int szer = 2;
+	int szer = 3;
 	int y1 = (srodekY + AH.width()/2*(tan((GetUavAttitude().roll))));
 	int y2 = (srodekY - AH.width()/2*(tan((GetUavAttitude().roll))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
@@ -46,17 +46,29 @@ void ArtificialHorizon() {
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
 	AH.drawLine(0, y1, AH.width(), y2, BLACK);
 
-	// //display.drawBitmap(0, 0, canvas.getBuffer(), 400, 240, WHITE);
-	// AH.fillRect(srodekX - 20, srodekY - szer, srodekX - 8, srodekY + szer, WHITE);
-	// // display.drawLine(display.width()/2, srodekY, display.width(), srodekY, BLACK);
-	// AH.drawLine(srodekX - 20, srodekY + szer, srodekX - 8, srodekY + szer, BLACK);
-	// AH.drawLine(srodekX + 8, srodekY + szer, srodekX + 20, srodekY + szer, BLACK);
-	// AH.drawLine(srodekX - 20, srodekY - szer, srodekX - 8, srodekY - szer, BLACK);
-	// AH.drawLine(srodekX + 8, srodekY - szer, srodekX + 20, srodekY - szer, BLACK);
-	// AH.drawLine(srodekX - 20, srodekY + szer, srodekX - 20, srodekY - szer, BLACK);
-	// AH.drawLine(srodekX + 20, srodekY + szer, srodekX + 20, srodekY - szer, BLACK);
-	//display.drawBitmap(srodekX - 17, srodekY - 3, crosshair, 34, 7, BLACK);
-	AH.drawBitmap(srodekX - 17, srodekY - 3, crosshair, 34, 7, BLACK);
+	// Lewa strona
+	AH.fillRect(srodekX - srodekX*0.7, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.7) + 1, (srodekY + szer) - srodekY, WHITE);
+	AH.fillRect(srodekX - srodekX*0.25 - szer, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.25 - szer), (srodekY + 10) - srodekY, WHITE); 
+	AH.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.25, srodekY, BLACK); // górna linia pozioma
+	AH.drawLine(srodekX - srodekX*0.7, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + szer, BLACK); // dolna linia pozioma
+	AH.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa 
+	AH.drawLine(srodekX - srodekX*0.25 - szer, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
+	AH.drawLine(srodekX - srodekX*0.25, srodekY, srodekX - srodekX*0.25, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
+	AH.drawLine(srodekX - srodekX*0.25 - szer, srodekY + 10, srodekX - srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
+	
+	// Prawa strona
+	AH.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.7) - (srodekX + srodekX*0.25) + 1, (srodekY + szer) - srodekY, WHITE);
+	AH.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.25 + szer) - (srodekX + srodekX*0.25), (srodekY + 10) - srodekY, WHITE);
+	AH.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.25, srodekY, BLACK); // górna linia pozioma
+	AH.drawLine(srodekX + srodekX*0.7, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + szer, BLACK); // dolna linia pozioma
+	AH.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa
+	AH.drawLine(srodekX + srodekX*0.25 + szer, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
+	AH.drawLine(srodekX + srodekX*0.25, srodekY, srodekX + srodekX*0.25, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
+	AH.drawLine(srodekX + srodekX*0.25 + szer, srodekY + 10, srodekX + srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
+
+	// Środek
+	AH.fillRect(srodekX - szer, srodekY, 2*szer, 2*szer, WHITE);
+	AH.drawRect(srodekX - szer, srodekY, 2*szer, 2*szer, BLACK);
 	display.drawBitmap(width - 150, 0, AH.getBuffer(), AH.width(), AH.height(), WHITE, BLACK);
 }
 

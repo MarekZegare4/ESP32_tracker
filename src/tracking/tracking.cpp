@@ -9,8 +9,8 @@
 
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
 
-#define SERVO_RX 18
-#define SERVO_TX 19
+#define SERVO_RX 16
+#define SERVO_TX 17
 
 SMS_STS st;
 DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
@@ -32,11 +32,16 @@ void TrackingInitialize(){
     bmm150.setMeasurementXYZ();
 }
 
+int angleToServo(int angle) {
+    return 4096/360*angle;
+}
+
 void TrackingTask(void * parameters) {
     for(;;) {
         Wgs84Coord uavPos;
         sDistAziElev = DistAziElev(uavPos, uavPos);
         sCompassDegree = bmm150.getCompassDegree();
+        st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); //To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }

@@ -12,10 +12,10 @@ void setup() {
   MavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
   WiFiBridgeInitialize(); // Inicjalizacja mostu WiFi
   DisplayInitialize();    // Inicjalizacja wyświetlacza
-  xTaskCreate(TrackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL);
-  xTaskCreate(DisplayTask, "Display", 5000, NULL, 1, NULL);
-  xTaskCreate(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL);
-  xTaskCreate(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL);
+  xTaskCreatePinnedToCore(TrackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(DisplayTask, "Display", 5000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
 }
 
