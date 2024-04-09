@@ -7,16 +7,16 @@
 
 void setup() {
   Serial.begin(115200);
-  CreateQueue();          // Tworzenie kolejki dla pakietów
-  TrackingInitialize();   // Inicjalizacja serwomechanizmu i magnetometru
-  MavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
-  WiFiBridgeInitialize(); // Inicjalizacja mostu WiFi
-  DisplayInitialize();    // Inicjalizacja wyświetlacza
-  xTaskCreatePinnedToCore(TrackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(DisplayTask, "Display", 5000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(SendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(DecodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(WiFiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
+  createQueue();          // Tworzenie kolejki dla pakietów
+  trackingInitialize();   // Inicjalizacja serwomechanizmu i magnetometru
+  mavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
+  wifiBridgeInitialize(); // Inicjalizacja mostu WiFi
+  displayInitialize();    // Inicjalizacja wyświetlacza
+  xTaskCreatePinnedToCore(trackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(displayTask, "Display", 5000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(sendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(decodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(wifiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
 }
 
 void loop() {

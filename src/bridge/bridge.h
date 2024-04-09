@@ -2,6 +2,6 @@
 #include <Arduino.h>
 #include "mavlink/mav.h"
 
-void WiFiBridgeInitialize();
-void WiFiBridgeTask(void * parameters);
-void BtBridgeTask(void * parameters);
+void wifiBridgeInitialize();
+void wifiBridgeTask(void * parameters);
+void btBridgeTask(void * parameters);

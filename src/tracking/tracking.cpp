@@ -18,11 +18,11 @@ DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 static AngleValues sDistAziElev;
 static float sCompassDegree;
 
-float GetCompassDegree() {
+float getCompassDegree() {
     return sCompassDegree;
 }
 
-void TrackingInitialize(){
+void trackingInitialize(){
     Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
     st.pSerial = &Serial1;
     bmm150.begin();
@@ -36,7 +36,7 @@ int angleToServo(int angle) {
     return 4096/360*angle;
 }
 
-void TrackingTask(void * parameters) {
+void trackingTask(void * parameters) {
     for(;;) {
         Wgs84Coord uavPos;
         sDistAziElev = DistAziElev(uavPos, uavPos);

@@ -19,28 +19,28 @@ int height = display.height();
 GFXcanvas1 AH(150, 150); // Artificial Horizon
 GFXcanvas1 TXT(width/2, width/2); // text part of the screen
 
-void DisplayInitialize(){
+void displayInitialize(){
 	display.begin();
 	display.clearDisplay();
 }
 
-void MainScreen() {
+void mainScreen() {
     TXT.fillScreen(WHITE);
     TXT.setTextSize(1);
     TXT.setTextColor(BLACK);
     TXT.setCursor(5, 10);
-	TXT.println("Mag heading: " + String(GetCompassDegree()));
+	TXT.println("Mag heading: " + String(getCompassDegree()));
     display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
 }
 
-void ArtificialHorizon() {
+void artificialHorizon() {
 	// Rysowanie sztucznego horyzontu
 	AH.fillScreen(WHITE);
 	int srodekX = AH.width()/2;
 	int srodekY = AH.width()/2;
 	int szer = 3;
-	int y1 = (srodekY + AH.width()/2*(tan((GetUavAttitude().roll))));
-	int y2 = (srodekY - AH.width()/2*(tan((GetUavAttitude().roll))));
+	int y1 = (srodekY + AH.width()/2*(tan((getUavAttitude().roll))));
+	int y2 = (srodekY - AH.width()/2*(tan((getUavAttitude().roll))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	AH.drawLine(0, 0, 0, AH.height(), BLACK);
 	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
@@ -72,10 +72,10 @@ void ArtificialHorizon() {
 	display.drawBitmap(width - 150, 0, AH.getBuffer(), AH.width(), AH.height(), WHITE, BLACK);
 }
 
-void DisplayTask (void * parameters) {
+void displayTask (void * parameters) {
 	for(;;){
-   		MainScreen();
-		ArtificialHorizon();
+   		mainScreen();
+		artificialHorizon();
 		display.refresh();
     	vTaskDelay((1/FPS)/portTICK_PERIOD_MS);
   	}

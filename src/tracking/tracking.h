@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <SCServo.h>
 
-void TrackingTask(void * parameters);
-void TrackingInitialize();
-float GetCompassDegree();
+void trackingTask(void * parameters);
+void trackingInitialize();
+float getCompassDegree();

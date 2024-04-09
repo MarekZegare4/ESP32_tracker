@@ -20,13 +20,13 @@ class UavDataAttitude {
     float yaw;
 };
 
-bool GetConnectionStatus();
-UavDataAttitude GetUavAttitude();
-UavDataGPS GetUavGPS();
+bool getConnectionStatus();
+UavDataAttitude getUavAttitude();
+UavDataGPS getUavGPS();
 void serialFlushRx();
-void CreateQueue();
-Packet AccessQueue();
-bool PacketAvailable();
-void MavlinkInitialize();
-void SendHeartbeatTask(void * parameters);
-void DecodeTelemetryTask(void * parameters);
+void createQueue();
+Packet accessQueue();
+bool packetAvailable();
+void mavlinkInitialize();
+void sendHeartbeatTask(void * parameters);
+void decodeTelemetryTask(void * parameters);

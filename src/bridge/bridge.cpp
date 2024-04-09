@@ -20,7 +20,7 @@ int port_tcp = 5760; // connect to this port per TCP // MissionPlanner default i
 int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
 int wifi_channel = 6; // WiFi channel, 1-13
 
-void WiFiBridgeInitialize() {
+void wifiBridgeInitialize() {
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
   WiFi.softAPConfig(ip, ip_gateway, netmask);
@@ -29,7 +29,7 @@ void WiFiBridgeInitialize() {
   udp.begin(port_udp);
 }
 
-void WiFiBridgeTask(void * parameters) {
+void wifiBridgeTask(void * parameters) {
   Packet packet;
   for(;;){
     uint8_t buf[256]; // working buffer
@@ -40,10 +40,10 @@ void WiFiBridgeTask(void * parameters) {
         Serial2.write(buf, len);
       }
     }
-    packet = AccessQueue();
+    packet = accessQueue();
     udp.beginPacket(ip_udp, port_udp);
     udp.write(packet.buf, packet.len);
     udp.endPacket();
-    vTaskDelay(10);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }

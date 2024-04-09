@@ -17,26 +17,26 @@ static bool isConnected = false;
 
 bool bridgeActive = true;
 
-bool GetConnectionStatus() {
+bool getConnectionStatus() {
     return isConnected;
 }
 
-UavDataGPS GetsUavGPS() {
+UavDataGPS getsUavGPS() {
     return sUavDataGPS;
 }
 
-UavDataAttitude GetUavAttitude() {
+UavDataAttitude getUavAttitude() {
     return sUavDataAttitude;
 }
 
-void MavlinkInitialize() {
+void mavlinkInitialize() {
     Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
 }
 
-void SendHeartbeatTask(void * parameters) {
+void sendHeartbeatTask(void * parameters) {
     for(;;) {
         uint8_t system_id = 1;
-        uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
+        uint8_t component_id = MAV_COMP_ID_UDP_BRIDGE;
         mavlink_message_t msg;
         uint8_t buf[MAVLINK_MAX_PACKET_LEN];
         mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
@@ -49,18 +49,18 @@ void SendHeartbeatTask(void * parameters) {
     }
 }
 
-void CreateQueue() {
+void createQueue() {
     sQueue = xQueueCreate(1, sizeof(Packet));
 }
 
-Packet AccessQueue() {
+Packet accessQueue() {
   Packet packet;
   if (xQueueReceive(sQueue, &packet, portMAX_DELAY)) {
     return packet;
   }
 }
 
-bool PacketAvailable() {
+bool packetAvailable() {
     return xQueuePeek(sQueue, NULL, 0);
 }
 
@@ -69,7 +69,7 @@ void serialFlushRx(void)
   while (Serial2.available() > 0) { Serial2.read(); }
 }
 
-void DecodeTelemetryTask(void * parameters){
+void decodeTelemetryTask(void * parameters){
     mavlink_status_t status;
     mavlink_message_t msg;
     int chan = MAVLINK_COMM_0;
@@ -134,6 +134,6 @@ void DecodeTelemetryTask(void * parameters){
                 }
             }
         }
-        vTaskDelay(10);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }  
 }

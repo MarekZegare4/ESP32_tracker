@@ -15,9 +15,9 @@ class displayElements {
 		bool isConnected = false;
 };
 
-void Menu();
-void ArtificialHorizon();
-void DisplayTask(void * parameters);
-void DegTask(void * parameters);
-void DisplayInitialize();
-void SendAttitude(mavlink_attitude_t attitude);
+void menu();
+void artificialHorizon();
+void displayTask(void * parameters);
+void degTask(void * parameters);
+void displayInitialize();
+void sendAttitude(mavlink_attitude_t attitude);
