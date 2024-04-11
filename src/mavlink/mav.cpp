@@ -36,7 +36,7 @@ void mavlinkInitialize() {
 void sendHeartbeatTask(void * parameters) {
     for(;;) {
         uint8_t system_id = 1;
-        uint8_t component_id = MAV_COMP_ID_UDP_BRIDGE;
+        uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
         mavlink_message_t msg;
         uint8_t buf[MAVLINK_MAX_PACKET_LEN];
         mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
