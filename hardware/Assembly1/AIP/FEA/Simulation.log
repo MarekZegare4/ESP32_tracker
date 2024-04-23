@@ -1,0 +1,187 @@
+﻿Study Static Analysis:1 started: 17.04.2024, 21:42:19
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 48s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study        Worst Jacobian ratio :  1.11  on element 9674 finished: 17.04.2024, 21:43:49
+Total time 0:01:30
+
+Study Static Analysis:1 started: 17.04.2024, 21:47:46
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 32s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:48:25
+Total time 0:00:39
+
+Study Static Analysis:1 started: 17.04.2024, 21:49:34
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 29s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:50:10
+Total time 0:00:36
+
+Study Static Analysis:1 started: 17.04.2024, 21:51:34
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 31s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:52:12
+Total time 0:00:38
+
+Study Static Analysis:1 started: 17.04.2024, 21:53:34
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 38s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:54:18
+Total time 0:00:44
+
+Study Static Analysis:1 started: 17.04.2024, 21:55:20
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 29s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:55:55
+Total time 0:00:35
+
+Study Static Analysis:1 started: 17.04.2024, 21:58:07
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Study Static Analysis:1 failed. 17.04.2024, 21:58:12
+Total time 0:00:05
+
+Study Static Analysis:1 started: 17.04.2024, 21:58:41
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+The deformation is large compared to the model size. Verify that load and constraint settings are appropriately scaled.
+Solution time 21s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 21:59:08
+Total time 0:00:27
+
+Study Static Analysis:1 started: 17.04.2024, 22:00:03
+Number of configurations: 1
+Default mesh: 250191 elements, 428252 nodes
+Mesh at contact 64 is too coarse
+Mesh at contact 66 is too coarse
+Mesh at contact 68 is too coarse
+Mesh at contact 77 is too coarse
+Mesh at contact 79 is too coarse
+Mesh at contact 81 is too coarse
+Mesh at contact 83 is too coarse
+Mesh at contact 85 is too coarse
+Mesh at contact 87 is too coarse
+Mesh at contact 89 is too coarse
+Mesh at contact 91 is too coarse
+Mesh at contact 113 is too coarse
+Solution time 22s
+Convergence rate: 50%
+Reached the total number of h refinements 
+Study Static Analysis:1 finished: 17.04.2024, 22:00:31
+Total time 0:00:28
+
