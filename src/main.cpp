@@ -26,3 +26,6 @@ void loop()
 {
   vTaskDelete(NULL);
 }
+
+// Do poprawki
+// usunąć/zmienić kondesator BOOT https://www.esp32.com/viewtopic.php?t=22895
