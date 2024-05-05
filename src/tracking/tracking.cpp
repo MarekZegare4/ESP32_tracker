@@ -18,11 +18,13 @@ DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 static AngleValues sDistAziElev;
 static float sCompassDegree;
 
-float getCompassDegree() {
+float getCompassDegree()
+{
     return sCompassDegree;
 }
 
-void trackingInitialize(){
+void trackingInitialize()
+{
     Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
     st.pSerial = &Serial1;
     bmm150.begin();
@@ -32,16 +34,19 @@ void trackingInitialize(){
     bmm150.setMeasurementXYZ();
 }
 
-int angleToServo(int angle) {
-    return 4096/360*angle;
+int angleToServo(int angle)
+{
+    return 4096 / 360 * angle;
 }
 
-void trackingTask(void * parameters) {
-    for(;;) {
-        Wgs84Coord uavPos;
-        sDistAziElev = DistAziElev(uavPos, uavPos);
+void trackingTask(void *parameters)
+{
+    for (;;)
+    {
+        //Wgs84Coord uavPos;
+        //sDistAziElev = DistAziElev(uavPos, uavPos);
         sCompassDegree = bmm150.getCompassDegree();
-        st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); //To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
+        st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); // To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }

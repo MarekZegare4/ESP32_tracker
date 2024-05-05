@@ -16,8 +16,8 @@ Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
 int width = display.width();
 int height = display.height();
 
-GFXcanvas1 AH(150, 150); // Artificial Horizon
-GFXcanvas1 TXT(width/2, width/2); // text part of the screen
+GFXcanvas1 a_h(150, 150); // Artificial Horizon
+GFXcanvas1 text(width/2, width/2); // text part of the screen
 
 void displayInitialize(){
 	display.begin();
@@ -25,51 +25,51 @@ void displayInitialize(){
 }
 
 void mainScreen() {
-    TXT.fillScreen(WHITE);
-    TXT.setTextSize(1);
-    TXT.setTextColor(BLACK);
-    TXT.setCursor(5, 10);
-	TXT.println("Mag heading: " + String(getCompassDegree()));
-    display.drawBitmap(0, 0, TXT.getBuffer(), TXT.width(), TXT.height(), WHITE, BLACK);
+    text.fillScreen(WHITE);
+    text.setTextSize(1);
+    text.setTextColor(BLACK);
+    text.setCursor(5, 10);
+	text.println("Mag heading: " + String(getCompassDegree()));
+    display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
 void artificialHorizon() {
 	// Rysowanie sztucznego horyzontu
-	AH.fillScreen(WHITE);
-	int srodekX = AH.width()/2;
-	int srodekY = AH.width()/2;
+	a_h.fillScreen(WHITE);
+	int srodekX = a_h.width()/2;
+	int srodekY = a_h.width()/2;
 	int szer = 3;
-	int y1 = (srodekY + AH.width()/2*(tan((getUavAttitude().roll))));
-	int y2 = (srodekY - AH.width()/2*(tan((getUavAttitude().roll))));
+	int y1 = (srodekY + a_h.width()/2*(tan((getUavAttitude().roll))));
+	int y2 = (srodekY - a_h.width()/2*(tan((getUavAttitude().roll))));
 	//canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
-	AH.drawLine(0, 0, 0, AH.height(), BLACK);
-	AH.drawLine(0, AH.height() - 1, AH.width(), AH.height() - 1, BLACK);
-	AH.drawLine(0, y1, AH.width(), y2, BLACK);
+	a_h.drawLine(0, 0, 0, a_h.height(), BLACK);
+	a_h.drawLine(0, a_h.height() - 1, a_h.width(), a_h.height() - 1, BLACK);
+	a_h.drawLine(0, y1, a_h.width(), y2, BLACK);
 
 	// Lewa strona
-	AH.fillRect(srodekX - srodekX*0.7, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.7) + 1, (srodekY + szer) - srodekY, WHITE);
-	AH.fillRect(srodekX - srodekX*0.25 - szer, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.25 - szer), (srodekY + 10) - srodekY, WHITE); 
-	AH.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.25, srodekY, BLACK); // górna linia pozioma
-	AH.drawLine(srodekX - srodekX*0.7, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + szer, BLACK); // dolna linia pozioma
-	AH.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa 
-	AH.drawLine(srodekX - srodekX*0.25 - szer, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
-	AH.drawLine(srodekX - srodekX*0.25, srodekY, srodekX - srodekX*0.25, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
-	AH.drawLine(srodekX - srodekX*0.25 - szer, srodekY + 10, srodekX - srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
+	a_h.fillRect(srodekX - srodekX*0.7, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.7) + 1, (srodekY + szer) - srodekY, WHITE);
+	a_h.fillRect(srodekX - srodekX*0.25 - szer, srodekY, (srodekX - srodekX*0.25) - (srodekX - srodekX*0.25 - szer), (srodekY + 10) - srodekY, WHITE); 
+	a_h.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.25, srodekY, BLACK); // górna linia pozioma
+	a_h.drawLine(srodekX - srodekX*0.7, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + szer, BLACK); // dolna linia pozioma
+	a_h.drawLine(srodekX - srodekX*0.7, srodekY, srodekX - srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa 
+	a_h.drawLine(srodekX - srodekX*0.25 - szer, srodekY + szer, srodekX - srodekX*0.25 - szer, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
+	a_h.drawLine(srodekX - srodekX*0.25, srodekY, srodekX - srodekX*0.25, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
+	a_h.drawLine(srodekX - srodekX*0.25 - szer, srodekY + 10, srodekX - srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
 	
 	// Prawa strona
-	AH.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.7) - (srodekX + srodekX*0.25) + 1, (srodekY + szer) - srodekY, WHITE);
-	AH.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.25 + szer) - (srodekX + srodekX*0.25), (srodekY + 10) - srodekY, WHITE);
-	AH.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.25, srodekY, BLACK); // górna linia pozioma
-	AH.drawLine(srodekX + srodekX*0.7, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + szer, BLACK); // dolna linia pozioma
-	AH.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa
-	AH.drawLine(srodekX + srodekX*0.25 + szer, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
-	AH.drawLine(srodekX + srodekX*0.25, srodekY, srodekX + srodekX*0.25, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
-	AH.drawLine(srodekX + srodekX*0.25 + szer, srodekY + 10, srodekX + srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
+	a_h.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.7) - (srodekX + srodekX*0.25) + 1, (srodekY + szer) - srodekY, WHITE);
+	a_h.fillRect(srodekX + srodekX*0.25, srodekY, (srodekX + srodekX*0.25 + szer) - (srodekX + srodekX*0.25), (srodekY + 10) - srodekY, WHITE);
+	a_h.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.25, srodekY, BLACK); // górna linia pozioma
+	a_h.drawLine(srodekX + srodekX*0.7, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + szer, BLACK); // dolna linia pozioma
+	a_h.drawLine(srodekX + srodekX*0.7, srodekY, srodekX + srodekX*0.7, srodekY + szer, BLACK); // lewa linia pionowa
+	a_h.drawLine(srodekX + srodekX*0.25 + szer, srodekY + szer, srodekX + srodekX*0.25 + szer, srodekY + 10, BLACK); // prawa linia pionowa mniejsza
+	a_h.drawLine(srodekX + srodekX*0.25, srodekY, srodekX + srodekX*0.25, srodekY + 10, BLACK); // lewa linia pionowa mniejsza
+	a_h.drawLine(srodekX + srodekX*0.25 + szer, srodekY + 10, srodekX + srodekX*0.25, srodekY + 10, BLACK); // linia pozioma mniejsza
 
 	// Środek
-	AH.fillRect(srodekX - szer, srodekY, 2*szer, 2*szer, WHITE);
-	AH.drawRect(srodekX - szer, srodekY, 2*szer, 2*szer, BLACK);
-	display.drawBitmap(width - 150, 0, AH.getBuffer(), AH.width(), AH.height(), WHITE, BLACK);
+	a_h.fillRect(srodekX - szer, srodekY, 2*szer, 2*szer, WHITE);
+	a_h.drawRect(srodekX - szer, srodekY, 2*szer, 2*szer, BLACK);
+	display.drawBitmap(width - 150, 0, a_h.getBuffer(), a_h.width(), a_h.height(), WHITE, BLACK);
 }
 
 void displayTask (void * parameters) {
