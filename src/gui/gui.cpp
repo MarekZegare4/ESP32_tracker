@@ -9,6 +9,10 @@
 #define WHITE 1
 #define FREQ_2MHZ 2000000
 #define FPS 30
+#define BUTTON_1_PIN 25
+#define BUTTON_2_PIN 26
+#define BUTTON_3_PIN 34
+#define BUTTON_4_PIN 35
 
 SPIClass vspi = SPIClass(VSPI);
 Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
@@ -19,7 +23,20 @@ int height = display.height();
 GFXcanvas1 a_h(150, 150); // Artificial Horizon
 GFXcanvas1 text(width/2, width/2); // text part of the screen
 
+String button1 = "waiting for press";
+
+void IRAM_ATTR button1ISR_falling() {
+	button1 = "Pressed";
+}
+
+void IRAM_ATTR button1ISR_rising() {
+	button1 = "Not pressed";
+}
+
 void displayInitialize(){
+	pinMode(BUTTON_1_PIN, INPUT_PULLUP);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button1ISR_falling, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button1ISR_rising, RISING);
 	display.begin();
 	display.clearDisplay();
 }
@@ -31,6 +48,40 @@ void mainScreen() {
     text.setCursor(5, 10);
 	text.println("Mag heading: " + String(getCompassDegree()));
     display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
+}
+
+void screenTest() {
+	static const unsigned char PROGMEM image_paint_0_bits[] = {0x07,0xff,0xc0,0x0f,0xff,0xe0,0x18,0x00,0x30,0x33,0xff,0x98,0x67,0xff,0xcc,0xcc,0x00,0x66,0x99,0xff,0x32,0xb3,0xff,0x9a,0xa6,0x00,0xca,0xac,0xfe,0x6a,0xa9,0xff,0x2a,0x2b,0x01,0xa8,0x0a,0x7c,0xa0,0x02,0xfe,0x80,0x00,0xfe,0x00,0x00,0xfe,0x00};
+	display.fillScreen(BLACK);
+	display.drawLine(1, 209, 399, 209, 1);
+	display.drawRect(10, 216, 70, 20, 1);
+	display.setTextColor(1);
+	display.setTextSize(1);
+	display.setTextWrap(false);
+	display.setCursor(36, 222);
+	display.print("GPS");
+	display.drawLine(11, 215, 80, 215, 1);
+	display.drawRect(110, 215, 70, 20, 1);
+	display.drawLine(80, 234, 80, 216, 1);
+	display.setCursor(126, 222);
+	display.print("Mavlink");
+	display.drawLine(111, 214, 180, 214, 1);
+	display.drawLine(180, 233, 180, 215, 1);
+	display.drawRect(210, 215, 70, 20, 1);
+	display.setCursor(219, 222);
+	display.print("Magnetom.");
+	display.drawLine(211, 214, 280, 214, 1);
+	display.drawLine(280, 233, 280, 215, 1);
+	display.drawRect(309, 215, 70, 20, 1);
+	display.setCursor(333, 221);
+	display.print("WiFi");
+	display.drawLine(310, 214, 379, 214, 1);
+	display.drawLine(379, 233, 379, 215, 1);
+	display.drawLine(1, 207, 399, 207, 1);
+	display.drawLine(0, 23, 399, 23, 1);
+	display.setCursor(5, 30);
+	display.print(button1);
+	display.drawBitmap(5, 4, image_paint_0_bits, 23, 16, 1);
 }
 
 void artificialHorizon() {
@@ -74,8 +125,9 @@ void artificialHorizon() {
 
 void displayTask (void * parameters) {
 	for(;;){
-   		mainScreen();
-		artificialHorizon();
+   		//mainScreen();
+		screenTest();
+		//artificialHorizon();
 		display.refresh();
     	vTaskDelay((1/FPS)/portTICK_PERIOD_MS);
   	}

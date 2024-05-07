@@ -450,7 +450,7 @@
       "netlist": "",
       "specctra_dsn": "",
       "step": "",
-      "vrml": ""
+      "vrml": "pcb.wrl"
     },
     "page_layout_descr_file": ""
   },
