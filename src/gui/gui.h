@@ -17,7 +17,7 @@ class displayElements {
 
 void menu();
 void artificialHorizon();
-void displayTask(void * parameters);
+void guiTask(void * parameters);
 void degTask(void * parameters);
-void displayInitialize();
+void guiInitialize();
 void sendAttitude(mavlink_attitude_t attitude);

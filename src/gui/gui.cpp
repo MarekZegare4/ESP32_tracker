@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "gui.h"
 #include "mavlink/mav.h"
 #include "tracking/tracking.h"
@@ -23,20 +24,56 @@ int height = display.height();
 GFXcanvas1 a_h(150, 150); // Artificial Horizon
 GFXcanvas1 text(width/2, width/2); // text part of the screen
 
-String button1 = "waiting for press";
+String button_1 = "waiting for press";
+String button_2 = "waiting for press";
+String button_3 = "waiting for press";
+String button_4 = "waiting for press";
 
-void IRAM_ATTR button1ISR_falling() {
-	button1 = "Pressed";
+void IRAM_ATTR button_1ISR() {
+	int current_level = gpio_get_level(GPIO_NUM_25);
+	if (current_level == 0) {
+		button_1 = "pressed";
+	} else {
+		button_1 = "released";
+	}
 }
 
-void IRAM_ATTR button1ISR_rising() {
-	button1 = "Not pressed";
+void IRAM_ATTR button_2ISR() {
+	int current_level = gpio_get_level(GPIO_NUM_26);
+	if (current_level == 0) {
+		button_2 = "pressed";
+	} else {
+		button_2 = "released";
+	}
 }
 
-void displayInitialize(){
+void IRAM_ATTR button_3ISR() {
+	int current_level = gpio_get_level(GPIO_NUM_34);
+	if (current_level == 0) {
+		button_3 = "pressed";
+	} else {
+		button_3 = "released";
+	}
+}
+
+void IRAM_ATTR button_4ISR() {
+	int current_level = gpio_get_level(GPIO_NUM_35);
+	if (current_level == 0) {
+		button_4 = "pressed";
+	} else {
+		button_4 = "released";
+	}
+}
+
+void guiInitialize(){
 	pinMode(BUTTON_1_PIN, INPUT_PULLUP);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button1ISR_falling, CHANGE);
-	//attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button1ISR_rising, RISING);
+	pinMode(BUTTON_2_PIN, INPUT_PULLUP);
+	pinMode(BUTTON_3_PIN, INPUT);
+	pinMode(BUTTON_4_PIN, INPUT);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button_1ISR, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_2_PIN), button_2ISR, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_3_PIN), button_3ISR, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_4_PIN), button_4ISR, CHANGE);
 	display.begin();
 	display.clearDisplay();
 }
@@ -50,38 +87,48 @@ void mainScreen() {
     display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
-void screenTest() {
+void screenTest(String motive = "light") {
 	static const unsigned char PROGMEM image_paint_0_bits[] = {0x07,0xff,0xc0,0x0f,0xff,0xe0,0x18,0x00,0x30,0x33,0xff,0x98,0x67,0xff,0xcc,0xcc,0x00,0x66,0x99,0xff,0x32,0xb3,0xff,0x9a,0xa6,0x00,0xca,0xac,0xfe,0x6a,0xa9,0xff,0x2a,0x2b,0x01,0xa8,0x0a,0x7c,0xa0,0x02,0xfe,0x80,0x00,0xfe,0x00,0x00,0xfe,0x00};
-	display.fillScreen(BLACK);
-	display.drawLine(1, 209, 399, 209, 1);
-	display.drawRect(10, 216, 70, 20, 1);
-	display.setTextColor(1);
+	int background = WHITE;
+	int foreground = BLACK;
+
+	if (motive == "light") {
+		background = WHITE;
+		foreground = BLACK;
+	}
+	else if (motive == "dark") {
+		background = BLACK;
+		foreground = WHITE;
+	}
+
+	display.fillScreen(background);
+	display.drawLine(1, 209, 399, 209, foreground);
+	display.drawRect(10, 216, 70, 20, foreground);
+	display.setTextColor(foreground);
 	display.setTextSize(1);
 	display.setTextWrap(false);
 	display.setCursor(36, 222);
-	display.print("GPS");
-	display.drawLine(11, 215, 80, 215, 1);
-	display.drawRect(110, 215, 70, 20, 1);
-	display.drawLine(80, 234, 80, 216, 1);
+	display.print(button_1);
+	display.drawLine(11, 215, 80, 215, foreground);
+	display.drawRect(110, 215, 70, 20, foreground);
+	display.drawLine(80, 234, 80, 216, foreground);
 	display.setCursor(126, 222);
-	display.print("Mavlink");
-	display.drawLine(111, 214, 180, 214, 1);
-	display.drawLine(180, 233, 180, 215, 1);
-	display.drawRect(210, 215, 70, 20, 1);
+	display.print(button_2);
+	display.drawLine(111, 214, 180, 214, foreground);
+	display.drawLine(180, 233, 180, 215, foreground);
+	display.drawRect(210, 215, 70, 20, foreground);
 	display.setCursor(219, 222);
-	display.print("Magnetom.");
-	display.drawLine(211, 214, 280, 214, 1);
-	display.drawLine(280, 233, 280, 215, 1);
-	display.drawRect(309, 215, 70, 20, 1);
+	display.print(button_3);
+	display.drawLine(211, 214, 280, 214, foreground);
+	display.drawLine(280, 233, 280, 215, foreground);
+	display.drawRect(309, 215, 70, 20, foreground);
 	display.setCursor(333, 221);
-	display.print("WiFi");
-	display.drawLine(310, 214, 379, 214, 1);
-	display.drawLine(379, 233, 379, 215, 1);
-	display.drawLine(1, 207, 399, 207, 1);
-	display.drawLine(0, 23, 399, 23, 1);
-	display.setCursor(5, 30);
-	display.print(button1);
-	display.drawBitmap(5, 4, image_paint_0_bits, 23, 16, 1);
+	display.print(button_4);
+	display.drawLine(310, 214, 379, 214, foreground);
+	display.drawLine(379, 233, 379, 215, foreground);
+	display.drawLine(1, 207, 399, 207, foreground);
+	display.drawLine(0, 23, 399, 23, foreground);
+	display.drawBitmap(5, 4, image_paint_0_bits, 23, 16, foreground);
 }
 
 void artificialHorizon() {
@@ -123,10 +170,10 @@ void artificialHorizon() {
 	display.drawBitmap(width - 150, 0, a_h.getBuffer(), a_h.width(), a_h.height(), WHITE, BLACK);
 }
 
-void displayTask (void * parameters) {
+void guiTask (void * parameters) {
 	for(;;){
-   		//mainScreen();
-		screenTest();
+   		mainScreen();
+		//screenTest("light");
 		//artificialHorizon();
 		display.refresh();
     	vTaskDelay((1/FPS)/portTICK_PERIOD_MS);

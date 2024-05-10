@@ -12,10 +12,10 @@ void setup()
   trackingInitialize();   // Inicjalizacja serwomechanizmu i magnetometru
   mavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
   wifiBridgeInitialize(); // Inicjalizacja mostu WiFi
-  displayInitialize();    // Inicjalizacja wyświetlacza
+  guiInitialize();    // Inicjalizacja wyświetlacza
   gpsInitialize();        // Inicjalizacja GNSS
   xTaskCreatePinnedToCore(trackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(displayTask, "Display", 5000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(guiTask, "GUI", 5000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(sendHeartbeatTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(decodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(wifiBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
