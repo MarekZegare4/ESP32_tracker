@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "bridge.h"
 #include "mavlink/mav.h"
+#include "BluetoothSerial.h"
 
 #define WIFI_POWER  WIFI_POWER_2dBm
 
@@ -20,6 +21,9 @@ int port_tcp = 5760; // connect to this port per TCP // MissionPlanner default i
 int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
 int wifi_channel = 6; // WiFi channel, 1-13
 
+BluetoothSerial btSerial;
+const char *pin = "1234";
+
 void wifiBridgeInitialize() {
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
@@ -27,6 +31,11 @@ void wifiBridgeInitialize() {
   WiFi.softAP(ssid.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
   WiFi.setTxPower(WIFI_POWER);
   udp.begin(port_udp);
+}
+
+void bluetoothBridgeInitialize() {
+  btSerial.begin("Tracker");
+  btSerial.setPin(pin);
 }
 
 void wifiBridgeTask(void * parameters) {
@@ -44,6 +53,26 @@ void wifiBridgeTask(void * parameters) {
     udp.beginPacket(ip_udp, port_udp);
     udp.write(packet.buf, packet.len);
     udp.endPacket();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
+}
+
+void bluetoothBridgeTask(void * parameters) {
+  Packet packet;
+  for(;;){
+    uint8_t buf[256];
+    if (Serial2.availableForWrite()) {
+      int len = btSerial.available();
+      if(len > sizeof(buf)) {
+        len = sizeof(buf);
+      }
+      for (int i = 0; i < len; i++) {
+        buf[i] = btSerial.read();
+      }
+      Serial2.write(buf, len);
+    }
+    packet = accessQueue();
+    btSerial.write(packet.buf, packet.len);
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
