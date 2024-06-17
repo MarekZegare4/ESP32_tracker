@@ -2,6 +2,7 @@
 #include "gui.h"
 #include "mavlink/mav.h"
 #include "tracking/tracking.h"
+#include "gps/gps.h"
 // https://javl.github.io/image2cpp/
 // https://www.streamlinehq.com/icons/pixel
 
@@ -83,7 +84,16 @@ void mainScreen() {
     text.setTextSize(1);
     text.setTextColor(BLACK);
     text.setCursor(5, 10);
-	text.println("Mag heading: " + String(getCompassDegree()));
+	//text.println("Mag heading: " + String(getCompassDegree()));
+	text.println("UAV");
+	text.setCursor(5, 20);
+	text.println("GPS: " + String(getUavGPS().global_lat) + " " + String(getUavGPS().global_lon) + " " + String(getUavGPS().global_alt));
+	text.setCursor(5, 40);
+	text.println("Tracker");
+	text.setCursor(5, 50);
+	text.println("GPS: " + String(getTrackerGPS().latitude) + " " + String(getTrackerGPS().longitude) + " " + String(getTrackerGPS().altitude));
+	text.setCursor(5, 60);
+	text.println("Fix: " + String(getTrackerGPS().fixType) + " Sat: " + String(getTrackerGPS().satCount));
     display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 

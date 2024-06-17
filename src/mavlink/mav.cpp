@@ -21,7 +21,7 @@ bool getConnectionStatus() {
     return isConnected;
 }
 
-UavDataGPS getsUavGPS() {
+UavDataGPS getUavGPS() {
     return sUavDataGPS;
 }
 

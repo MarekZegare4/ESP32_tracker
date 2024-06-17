@@ -26,17 +26,16 @@
 */
 
 #include <SPI.h> //Needed for SPI to GNSS
-
 #include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
+#include "gps.h"
 
 SFE_UBLOX_GNSS_SPI myGNSS; // SFE_UBLOX_GNSS_SPI uses SPI. For I2C or Serial, see Example1 and Example2
 
 #define myCS 15 // Define the GPIO pin number for the SPI Chip Select. Change this if required
-
 #define myClockSpeed 1000000 // Define what SPI clock speed to use. Change this if required
 
 SPIClass spiPort(HSPI);
-
+TrackerDataGPS gpsData;
 void gpsInitialize()
 {
   Serial.println("SparkFun u-blox Example");
@@ -55,6 +54,11 @@ void gpsInitialize()
   // myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT); //Optional: save (only) the communications port settings to flash and BBR
 }
 
+TrackerDataGPS getTrackerGPS()
+{
+  return gpsData;
+}
+
 void gpsTask(void *parameters)
 {
   for (;;)
@@ -64,34 +68,11 @@ void gpsTask(void *parameters)
     // getPVT() returns true when new data is received.
     if (myGNSS.getPVT() == true)
     {
-      int32_t latitude = myGNSS.getLatitude();
-      Serial.print(F("Lat: "));
-      Serial.print(latitude);
-
-      int32_t longitude = myGNSS.getLongitude();
-      Serial.print(F(" Long: "));
-      Serial.print(longitude);
-      Serial.print(F(" (degrees * 10^-7)"));
-
-      int32_t altitude = myGNSS.getAltitudeMSL(); // Altitude above Mean Sea Level
-      Serial.print(F(" Alt: "));
-      Serial.print(altitude);
-      Serial.print(F(" (mm)"));
-
-      byte fixType = myGNSS.getFixType();
-      Serial.print(F(" Fix: "));
-      if(fixType == 0) Serial.print(F("No fix"));
-      else if(fixType == 1) Serial.print(F("Dead reckoning"));
-      else if(fixType == 2) Serial.print(F("2D"));
-      else if(fixType == 3) Serial.print(F("3D"));
-      else if(fixType == 4) Serial.print(F("GNSS + Dead reckoning"));
-      else if(fixType == 5) Serial.print(F("Time only"));
-
-      int8_t satCount  = myGNSS.getSIV();
-      Serial.print(F(" SIV: "));
-      Serial.print(satCount);
-      
-      Serial.println();
+      gpsData.latitude = myGNSS.getLatitude();
+      gpsData.longitude = myGNSS.getLongitude();
+      gpsData.altitude = myGNSS.getAltitudeMSL(); // Altitude above Mean Sea Level
+      gpsData.fixType = myGNSS.getFixType();
+      gpsData.satCount = myGNSS.getSIV();
     }
   }
 }

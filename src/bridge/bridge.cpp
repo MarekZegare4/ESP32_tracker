@@ -5,7 +5,6 @@
 #include "BluetoothSerial.h"
 
 #define WIFI_POWER  WIFI_POWER_2dBm
-
 // WiFi settings
 String ssid = "mLRS UDP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -27,6 +26,7 @@ const char *pin = "1234";
 void wifiBridgeInitialize() {
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
+  WiFi.setTxPower(WIFI_POWER);
   WiFi.softAPConfig(ip, ip_gateway, netmask);
   WiFi.softAP(ssid.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
   WiFi.setTxPower(WIFI_POWER);
