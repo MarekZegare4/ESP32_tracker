@@ -13,6 +13,7 @@
 static QueueHandle_t sQueue;
 static UavDataGPS sUavDataGPS;
 static UavDataAttitude sUavDataAttitude;
+static UavSysText sUavSysText;
 static bool isConnected = false;
 
 bool bridgeActive = true;
@@ -27,6 +28,10 @@ UavDataGPS getUavGPS() {
 
 UavDataAttitude getUavAttitude() {
     return sUavDataAttitude;
+}
+
+UavSysText getUavSysText() {
+    return sUavSysText;
 }
 
 void mavlinkInitialize() {
@@ -95,11 +100,15 @@ void decodeTelemetryTask(void * parameters){
                                 mavlink_msg_heartbeat_decode(&msg, &heartbeat);
                                 break;
                             }
-                        case MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN: // ID for SYS_STATUS
+                        case MAVLINK_MSG_ID_STATUSTEXT: // ID for SYS_STATUS
                             {
                                 // Get all fields in payload (into sys_status)
                                 mavlink_statustext_t sys_status;
                                 mavlink_msg_statustext_decode(&msg, &sys_status);
+                                //Serial.printf("Severity: %d, text: %s\n", sys_status.severity, sys_status.text);
+                                sUavSysText.severity = sys_status.severity;
+                                strcpy(sUavSysText.text, sys_status.text);
+                                Serial.println(sUavSysText.text);
                                 break;
                             }
                         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT

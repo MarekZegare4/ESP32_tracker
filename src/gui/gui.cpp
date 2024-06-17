@@ -94,7 +94,11 @@ void mainScreen() {
 	text.println("GPS: " + String(getTrackerGPS().latitude) + " " + String(getTrackerGPS().longitude) + " " + String(getTrackerGPS().altitude));
 	text.setCursor(5, 60);
 	text.println("Fix: " + String(getTrackerGPS().fixType) + " Sat: " + String(getTrackerGPS().satCount));
-    display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
+	text.setCursor(5, 80);
+	text.println("SYS TEXT");
+	text.setCursor(5, 90);
+	text.println(String(getUavSysText().text));
+	display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
 void screenTest(String motive = "light") {

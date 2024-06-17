@@ -20,9 +20,16 @@ class UavDataAttitude {
     float yaw;
 };
 
+class UavSysText {
+  public:
+    int severity = 0;
+    char text[50] = "";
+};
+
 bool getConnectionStatus();
 UavDataAttitude getUavAttitude();
 UavDataGPS getUavGPS();
+UavSysText getUavSysText();
 void serialFlushRx();
 void createQueue();
 Packet accessQueue();
