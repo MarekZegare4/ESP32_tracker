@@ -35,5 +35,5 @@ void createQueue();
 Packet accessQueue();
 bool packetAvailable();
 void mavlinkInitialize();
-void sendHeartbeatTask(void * parameters);
+void sendMavlinkMsgTask(void * parameters);
 void decodeTelemetryTask(void * parameters);

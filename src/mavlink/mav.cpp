@@ -3,6 +3,8 @@
 #include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "bridge/bridge.h"
+#include "gps/gps.h"
+#include "bridge/bridge.h"
 
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
 
@@ -38,19 +40,33 @@ void mavlinkInitialize() {
     Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
 }
 
-void sendHeartbeatTask(void * parameters) {
+void sendMavlinkMsgTask(void * parameters) {
     for(;;) {
-        uint8_t system_id = 1;
+        // Heartbeat
+        uint8_t system_id = 10;
         uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
         mavlink_message_t msg;
         uint8_t buf[MAVLINK_MAX_PACKET_LEN];
         mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
         uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-        if (Serial2.availableForWrite()) {
-            Serial2.write(buf, len);
-            //Serial.print("Wyslano HB\n");
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
+        sendBtMsg(buf, len);
+        
+        // Global position
+        uint32_t time_boot_ms = 100;
+        TrackerDataGPS tracker_gps = getTrackerGPS();
+        int32_t lat = tracker_gps.latitude;
+        int32_t lon = tracker_gps.longitude;
+        int32_t alt = tracker_gps.altitude;
+        int32_t realtive_alt = tracker_gps.altitude;
+        int16_t vx = 0;
+        int16_t vy = 0;
+        int16_t vz = 0;
+        uint16_t hdg = UINT16_MAX;
+        mavlink_msg_global_position_int_pack(system_id, component_id, &msg, time_boot_ms, lat, lon, alt, realtive_alt, vx, vy, vz, hdg);
+        len = mavlink_msg_to_send_buffer(buf, &msg);
+        sendBtMsg(buf, len);
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 

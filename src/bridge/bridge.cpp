@@ -37,6 +37,16 @@ void bluetoothBridgeInitialize() {
   btSerial.setPin(pin);
 }
 
+void sendBTMsg(uint8_t *buf, uint8_t len) {
+  btSerial.write(buf, len);
+}
+
+void sendUDPPacket(uint8_t *buf, uint8_t len) {
+  udp.beginPacket(ip_udp, port_udp);
+  udp.write(buf, len);
+  udp.endPacket();
+}
+
 void wifiBridgeTask(void * parameters) {
   Packet packet;
   for(;;){
