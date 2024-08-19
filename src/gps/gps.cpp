@@ -1,30 +1,3 @@
-/*
-  Reading Position, Velocity and Time (PVT) via UBX binary commands
-  By: Paul Clark
-  SparkFun Electronics
-  Date: December 21st, 2022
-  License: MIT. Please see LICENSE.md for more information.
-
-  This example shows how to query a u-blox module for its position, velocity and time (PVT) data using SPI.
-  We also turn off the NMEA output on the SPI port. This decreases the amount of traffic dramatically.
-
-  Note: Lat/Lon are large numbers because they are * 10^7. To convert lat/lon
-  to something google maps understands simply divide the numbers by 10,000,000.
-
-  Feel like supporting open source hardware?
-  Buy a board from SparkFun!
-  SparkFun GPS-RTK2 - ZED-F9P (GPS-15136)    https://www.sparkfun.com/products/15136
-  SparkFun GPS-RTK-SMA - ZED-F9P (GPS-16481) https://www.sparkfun.com/products/16481
-  SparkFun MAX-M10S Breakout (GPS-18037)     https://www.sparkfun.com/products/18037
-  SparkFun ZED-F9K Breakout (GPS-18719)      https://www.sparkfun.com/products/18719
-  SparkFun ZED-F9R Breakout (GPS-16344)      https://www.sparkfun.com/products/16344
-
-  Hardware Connections:
-  Hook up the PICO, POCI, SCK, CS and GND pins, plus 3V3 or 5V depending on your needs
-  Connect: GNSS PICO to microcontroller PICO; GNSS POCI to microcontroller POCI
-  Open the serial monitor at 115200 baud to see the output
-*/
-
 #include <SPI.h> //Needed for SPI to GNSS
 #include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
 #include "gps.h"
@@ -38,18 +11,14 @@ SPIClass spiPort(HSPI);
 TrackerDataGPS gpsData;
 void gpsInitialize()
 {
-  Serial.println("SparkFun u-blox Example");
 
-  // myGNSS.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
-
+  //myGNSS.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
   while (myGNSS.begin(spiPort, myCS, myClockSpeed) == false) // Connect to the u-blox module using the port, chip select pin and speed defined above
   {
-    Serial.println(F("u-blox GNSS not detected. Retrying..."));
     delay(1000);
   }
 
   myGNSS.setSPIOutput(COM_TYPE_UBX); // Set the SPI port to output UBX only (turn off NMEA noise)
-  printf("Działa\n");
 
   // myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT); //Optional: save (only) the communications port settings to flash and BBR
 }

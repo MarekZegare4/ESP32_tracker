@@ -11,10 +11,12 @@
 #define WHITE 1
 #define FREQ_2MHZ 2000000
 #define FPS 30
-#define BUTTON_1_PIN 25
-#define BUTTON_2_PIN 26
-#define BUTTON_3_PIN 34
-#define BUTTON_4_PIN 35
+#define BUTTON_1_PIN 26
+#define BUTTON_2_PIN 25
+#define BUTTON_3_PIN 35
+#define BUTTON_4_PIN 34
+
+bool button_flag = false;
 
 SPIClass vspi = SPIClass(VSPI);
 Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
@@ -30,6 +32,15 @@ String button_2 = "waiting for press";
 String button_3 = "waiting for press";
 String button_4 = "waiting for press";
 
+enum eScreen {
+	GPS,
+	MAP,
+	TEST,
+	SETTINGS
+};
+
+eScreen screen = GPS;
+
 void IRAM_ATTR button_1ISR() {
 	int current_level = gpio_get_level(GPIO_NUM_25);
 	if (current_level == 0) {
@@ -37,6 +48,8 @@ void IRAM_ATTR button_1ISR() {
 	} else {
 		button_1 = "released";
 	}
+	button_flag = true;
+	screen = GPS;
 }
 
 void IRAM_ATTR button_2ISR() {
@@ -46,6 +59,8 @@ void IRAM_ATTR button_2ISR() {
 	} else {
 		button_2 = "released";
 	}
+	button_flag = true;
+	screen = MAP;
 }
 
 void IRAM_ATTR button_3ISR() {
@@ -55,6 +70,8 @@ void IRAM_ATTR button_3ISR() {
 	} else {
 		button_3 = "released";
 	}
+	button_flag = true;
+	screen = TEST;
 }
 
 void IRAM_ATTR button_4ISR() {
@@ -64,17 +81,19 @@ void IRAM_ATTR button_4ISR() {
 	} else {
 		button_4 = "released";
 	}
+	button_flag = true;
+	screen = SETTINGS;
 }
 
 void guiInitialize(){
-	pinMode(BUTTON_1_PIN, INPUT_PULLUP);
-	pinMode(BUTTON_2_PIN, INPUT_PULLUP);
+	pinMode(BUTTON_1_PIN, INPUT);
+	pinMode(BUTTON_2_PIN, INPUT);
 	pinMode(BUTTON_3_PIN, INPUT);
 	pinMode(BUTTON_4_PIN, INPUT);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button_1ISR, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_2_PIN), button_2ISR, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_3_PIN), button_3ISR, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_4_PIN), button_4ISR, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button_1ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_2_PIN), button_2ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_3_PIN), button_3ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_4_PIN), button_4ISR, FALLING);
 	display.begin();
 	display.clearDisplay();
 }
@@ -186,7 +205,32 @@ void artificialHorizon() {
 
 void guiTask (void * parameters) {
 	for(;;){
-   		mainScreen();
+
+		if (button_flag) {
+			button_flag = false;
+			display.clearDisplay();
+		}
+
+		switch (screen)
+		{
+		case GPS:
+			mainScreen();
+			break;
+		
+		case MAP:
+			break;
+		
+		case TEST:
+			screenTest("light");
+			break;
+		
+		case SETTINGS:
+			break;
+		
+		default:
+			break;
+		}
+   		//mainScreen();
 		//screenTest("light");
 		//artificialHorizon();
 		display.refresh();

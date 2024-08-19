@@ -49,7 +49,7 @@ void sendMavlinkMsgTask(void * parameters) {
         uint8_t buf[MAVLINK_MAX_PACKET_LEN];
         mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
         uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-        sendBtMsg(buf, len);
+        sendBTMsg(buf, len);
         
         // Global position
         uint32_t time_boot_ms = 100;
@@ -64,7 +64,7 @@ void sendMavlinkMsgTask(void * parameters) {
         uint16_t hdg = UINT16_MAX;
         mavlink_msg_global_position_int_pack(system_id, component_id, &msg, time_boot_ms, lat, lon, alt, realtive_alt, vx, vy, vz, hdg);
         len = mavlink_msg_to_send_buffer(buf, &msg);
-        sendBtMsg(buf, len);
+        sendBTMsg(buf, len);
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

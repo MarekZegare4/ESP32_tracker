@@ -41,7 +41,7 @@ int angleToServo(int angle)
 
 void trackingTask(void *parameters)
 {
-    for (;;)
+for (;;)
     {
         //Wgs84Coord uavPos;
         //sDistAziElev = DistAziElev(uavPos, uavPos);
