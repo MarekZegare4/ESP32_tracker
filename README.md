@@ -61,5 +61,5 @@
 
 | Date   | Time [h] | Things done              |
 |--------|----------|--------------------------|
-|2.09.24 |          |work plan                 |
+|2.09.24 |    4     |work plan, menu framwework|
 |3.09.24 |          |                          |
