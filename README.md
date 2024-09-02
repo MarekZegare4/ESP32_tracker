@@ -1,6 +1,6 @@
 
 
-# Work plan for (inser cool project name here)
+# Work plan for (insert cool project name here)
 
 - [Things to do](#things-to-do)
     - [Hardware](#hardware)
@@ -19,6 +19,7 @@
 ### Software
 
 - [ ] Implement menu system
+    - [x] Framwork
 - [ ] Populate menus:
     - [ ] [Main screen](#main-screen)
     - [ ] [UAV status](#uav-status)

@@ -7,12 +7,29 @@
 #include <SPI.h>
 #include "gfx.h"
 
-class displayElements {	
+class DisplayElements {	
 	public:
 		String gcsCompass;
 		String mavStatusMsg;
 		float attitudeRoll = 0;
 		bool isConnected = false;
+};
+
+class Menu {
+	public:
+		const char *name;
+		class MenuElement *elements;
+		int elementCount;
+		int selectedElement;
+		class Menu *parent;
+};
+
+class MenuElement {
+	public:
+		const char *name;
+		void (*function)(void * parameters);
+		void * parameters;
+		class Menu *subMenu;
 };
 
 void menu();
