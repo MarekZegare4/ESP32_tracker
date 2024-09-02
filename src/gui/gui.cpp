@@ -3,8 +3,6 @@
 #include "mavlink/mav.h"
 #include "tracking/tracking.h"
 #include "gps/gps.h"
-// https://javl.github.io/image2cpp/
-// https://www.streamlinehq.com/icons/pixel
 
 #define DISPLAY_CS 5
 #define BLACK 0
@@ -16,7 +14,15 @@
 #define BUTTON_3_PIN 35
 #define BUTTON_4_PIN 34
 
+// Useful links:
+// https://javl.github.io/image2cpp/
+// https://www.streamlinehq.com/icons/pixel
+
 bool button_flag = false;
+bool settings_flag = false;
+
+void (*loopFunction)() = NULL;
+void (*lastLoopFunction)() = NULL;
 
 SPIClass vspi = SPIClass(VSPI);
 Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
@@ -24,17 +30,30 @@ Adafruit_SharpMem display(&vspi, DISPLAY_CS, 400, 240, FREQ_2MHZ);
 int width = display.width();
 int height = display.height();
 
-GFXcanvas1 a_h(150, 150);			   // Artificial Horizon
-GFXcanvas1 text(width / 2, width / 2); // text part of the screen
+GFXcanvas1 a_h(150, 150);					   // Artificial Horizon
+GFXcanvas1 text(width / 2, width / 2);		   // text part of the screen
+GFXcanvas1 navigationBar(width, 20);		   // navigation bar
+GFXcanvas1 popupWindow(width / 2, height / 2); // popup window
 
 // MENU CREATION
+// Courtesy of @sterretje
+// https://forum.arduino.cc/t/creating-a-menu-system/896007/2
 // ----------------------------------------------------------------
 #define NUM_ELEMENTS(X) (sizeof(X) / sizeof(X[0]))
 
+// Class prototypes
+// ===============================
 extern Menu settingsMenu;
 extern Menu languageMenu;
 extern Menu bridgeModeMenu;
+// ===============================
 
+// Function prototypes
+// ===============================
+void polishPopup(void *parameters);
+// ===============================
+
+// Menu state variables
 Menu *currentMenu = &settingsMenu;
 void (*currentFunction)(void *parameters) = NULL;
 void *currentParameters = NULL;
@@ -43,10 +62,11 @@ void *currentParameters = NULL;
 MenuElement settingsElements[] = {
 	{"System status", NULL, NULL, NULL},
 	{"Language", NULL, NULL, &languageMenu},
-	{"Bridge mode", NULL, NULL, &bridgeModeMenu},};
+	{"Bridge mode", NULL, NULL, &bridgeModeMenu},
+};
 
 MenuElement languageElements[] = {
-	{"English", NULL, NULL, NULL},
+	{"English", polishPopup, NULL, NULL},
 	{"Polish", NULL, NULL, NULL},
 };
 
@@ -58,8 +78,22 @@ MenuElement bridgeModeElements[] = {
 // name, elements, element count, selected element, parent
 Menu settingsMenu = {"Settings", settingsElements, NUM_ELEMENTS(settingsElements), 0, NULL};
 Menu systemStatusMenu = {"System status", NULL, 0, 0, &settingsMenu};
-Menu languageMenu = {"Language", languageElements, 0, NUM_ELEMENTS(languageElements), &settingsMenu};
-Menu bridgeModeMenu = {"Bridge mode", bridgeModeElements, 0, NUM_ELEMENTS(bridgeModeElements), &settingsMenu};
+Menu languageMenu = {"Language", languageElements, NUM_ELEMENTS(languageElements), 0, &settingsMenu};
+Menu bridgeModeMenu = {"Bridge mode", bridgeModeElements, NUM_ELEMENTS(bridgeModeElements), 0, &settingsMenu};
+
+void polishPopup(void *parameters)
+{
+	display.clearDisplay();
+	popupWindow.fillScreen(WHITE);
+	popupWindow.drawRect(0, 0, popupWindow.width(), popupWindow.height(), BLACK);
+	popupWindow.setTextSize(1);
+	popupWindow.setTextColor(BLACK);
+	popupWindow.setCursor(5, 10);
+	popupWindow.println("Polish language selected");
+	popupWindow.println("press any button to continue");
+	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
+	// delay(2000);
+}
 
 // ----------------------------------------------------------------
 
@@ -267,55 +301,96 @@ void guiTask(void *parameters)
 {
 	for (;;)
 	{
-		if (button != NONE) {
+		if (button != NONE)
+		{
 			display.clearDisplay();
 		}
-		switch (button)
-    {
-      // Move down
-      case BUTTON_2:
-	  	button = NONE;
-        currentMenu->selectedElement++;
-        if (currentMenu->selectedElement >= currentMenu->elementCount)
-        {
-          currentMenu->selectedElement = currentMenu->elementCount - 1;
-        }
-        break;
-      // Move up
-      case BUTTON_1:
-	  	button = NONE;
-        if (currentMenu->selectedElement > 0)
-        {
-          currentMenu->selectedElement--;
-        }
-        break;
 
-	  // Select
-	  case BUTTON_3:
-	  	button = NONE;
-		if (currentMenu->elements[currentMenu->selectedElement].subMenu != NULL)
-        {
-          // if there is a submenu, change to submenu
-          currentMenu = currentMenu->elements[currentMenu->selectedElement].subMenu;
-        }
-        if (currentMenu->elements[currentMenu->selectedElement].function != NULL)
-        {
-          // if there is an action, setup current action and current parameter
-          //currentMenu->items[currentMenu->selected].action(currentMenu->items[currentMenu->selected].param);
-          currentFunction = currentMenu->elements[currentMenu->selectedElement].function;
-          currentParameters = currentMenu->elements[currentMenu->selectedElement].parameters;
-        }
-        break;
-
-	case BUTTON_4:
-		button = NONE;
-		if (currentMenu->parent != NULL)
+		if (!settings_flag)
 		{
-			currentMenu = currentMenu->parent;
+			switch (button)
+			{
+			case BUTTON_1:
+				button = NONE;
+				loopFunction = mainScreen;
+				break;
+
+			case BUTTON_2:
+				button = NONE;
+
+				break;
+
+			case BUTTON_3:
+				button = NONE;
+				break;
+
+			case BUTTON_4:
+				button = NONE;
+				settings_flag = true;
+				break;
+			}
 		}
-		break;
-    }
-		displayMenu();
+		else
+		{
+			lastLoopFunction = loopFunction;
+			loopFunction = NULL;
+			switch (button)
+			{
+			// Move down
+			case BUTTON_2:
+				button = NONE;
+				currentMenu->selectedElement++;
+				if (currentMenu->selectedElement >= currentMenu->elementCount)
+				{
+					currentMenu->selectedElement = currentMenu->elementCount - 1;
+				}
+				break;
+			// Move up
+			case BUTTON_1:
+				button = NONE;
+				if (currentMenu->selectedElement > 0)
+				{
+					currentMenu->selectedElement--;
+				}
+				break;
+
+			// Select
+			case BUTTON_3:
+				button = NONE;
+				if (currentMenu->elements[currentMenu->selectedElement].subMenu != NULL)
+				{
+					// if there is a submenu, change to submenu
+					currentMenu = currentMenu->elements[currentMenu->selectedElement].subMenu;
+				}
+				else if (currentMenu->elements[currentMenu->selectedElement].function != NULL)
+				{
+					// if there is an action, setup current action and current parameter
+					// currentMenu->items[currentMenu->selected].action(currentMenu->items[currentMenu->selected].param);
+					currentFunction = currentMenu->elements[currentMenu->selectedElement].function;
+					currentParameters = currentMenu->elements[currentMenu->selectedElement].parameters;
+					currentFunction(currentParameters);
+				}
+				break;
+
+			case BUTTON_4:
+				button = NONE;
+				if (currentMenu == &settingsMenu)
+				{
+					settings_flag = false;
+					loopFunction = lastLoopFunction;
+				}
+				if (currentMenu->parent != NULL)
+				{
+					currentMenu = currentMenu->parent;
+				}
+				break;
+			}
+			displayMenu();
+		}
+		if (loopFunction != NULL)
+		{
+			loopFunction();
+		}
 		display.refresh();
 		vTaskDelay((1 / FPS) / portTICK_PERIOD_MS);
 	}
