@@ -21,7 +21,7 @@
 bool button_flag = false;
 bool settings_flag = false;
 
-void (*loopFunction)() = NULL;
+void (*loopFunction)() = mainScreen;
 void (*lastLoopFunction)() = NULL;
 
 SPIClass vspi = SPIClass(VSPI);
@@ -32,12 +32,12 @@ int height = display.height();
 
 GFXcanvas1 a_h(150, 150);					   // Artificial Horizon
 GFXcanvas1 text(width / 2, width / 2);		   // text part of the screen
-GFXcanvas1 navigationBar(width, 20);		   // navigation bar
+GFXcanvas1 navigationBar(width, 30);		   // navigation bar
 GFXcanvas1 popupWindow(width / 2, height / 2); // popup window
 
 // MENU CREATION
 // Courtesy of @sterretje
-// https://forum.arduino.cc/t/creating-a-menu-system/896007/2
+// https://forum.arduino.cc/t/menu-and-sub-menu-scrolling-with-keypad/461328
 // ----------------------------------------------------------------
 #define NUM_ELEMENTS(X) (sizeof(X) / sizeof(X[0]))
 
@@ -51,6 +51,7 @@ extern Menu bridgeModeMenu;
 // Function prototypes
 // ===============================
 void polishPopup(void *parameters);
+void englishPopup(void *parameters);
 // ===============================
 
 // Menu state variables
@@ -58,28 +59,50 @@ Menu *currentMenu = &settingsMenu;
 void (*currentFunction)(void *parameters) = NULL;
 void *currentParameters = NULL;
 
-// name, function, parameters, submenu
+// name, function, parameters, function type, toggle, submenu
 MenuElement settingsElements[] = {
-	{"System status", NULL, NULL, NULL},
-	{"Language", NULL, NULL, &languageMenu},
-	{"Bridge mode", NULL, NULL, &bridgeModeMenu},
+	{"System status", NULL, NULL, SINGLE, false, NULL},
+	{"Language", NULL, NULL, SINGLE, false, &languageMenu},
+	{"Bridge mode", NULL, NULL, SINGLE, false, &bridgeModeMenu},
 };
 
 MenuElement languageElements[] = {
-	{"English", polishPopup, NULL, NULL},
-	{"Polish", NULL, NULL, NULL},
+	{"English", NULL, NULL, SINGLE, false, NULL},
+	{"Polish", polishPopup, NULL, SINGLE, false, NULL},
 };
 
 MenuElement bridgeModeElements[] = {
-	{"WiFi", NULL, NULL, NULL},
-	{"BT", NULL, NULL, NULL},
-	{"USB", NULL, NULL, NULL}};
+	{"WiFi", NULL, NULL, SINGLE, false, NULL},
+	{"BT", NULL, NULL, SINGLE, false, NULL},
+	{"USB", NULL, NULL, SINGLE, false, NULL}};
 
 // name, elements, element count, selected element, parent
 Menu settingsMenu = {"Settings", settingsElements, NUM_ELEMENTS(settingsElements), 0, NULL};
 Menu systemStatusMenu = {"System status", NULL, 0, 0, &settingsMenu};
 Menu languageMenu = {"Language", languageElements, NUM_ELEMENTS(languageElements), 0, &settingsMenu};
 Menu bridgeModeMenu = {"Bridge mode", bridgeModeElements, NUM_ELEMENTS(bridgeModeElements), 0, &settingsMenu};
+
+void centerPerfectly(const String &textValue, int cursorXPos, int cursorYPos, GFXcanvas1 &display)
+{
+	int16_t x1, y1;
+	uint16_t textWidth, textHeight;
+
+	display.getTextBounds(textValue, 0, 0, &x1, &y1, &textWidth, &textHeight);
+	display.setCursor((display.width() - textWidth) / 2, (display.height() - textHeight) / 2);
+
+	display.println(textValue);
+}
+
+void centerPerfectly(const String &textValue, int cursorXPos, int cursorYPos, Adafruit_SharpMem &display)
+{
+	int16_t x1, y1;
+	uint16_t textWidth, textHeight;
+
+	display.getTextBounds(textValue, cursorXPos, cursorYPos, &x1, &y1, &textWidth, &textHeight);
+	display.setCursor((display.width() - textWidth) / 2, (display.height() - textHeight) / 2);
+
+	display.print(textValue);
+}
 
 void polishPopup(void *parameters)
 {
@@ -89,25 +112,14 @@ void polishPopup(void *parameters)
 	popupWindow.setTextSize(1);
 	popupWindow.setTextColor(BLACK);
 	popupWindow.setCursor(5, 10);
-	popupWindow.println("Polish language selected");
-	popupWindow.println("press any button to continue");
+	centerPerfectly("Język zmieniony na polski", 0, 0, popupWindow);
+	centerPerfectly("Kliknij dowolny przycisk, aby kontynuować", 0, 10, popupWindow);
 	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
-	// delay(2000);
 }
 
 // ----------------------------------------------------------------
 
-enum eButton
-{
-	BUTTON_1,
-	BUTTON_2,
-	BUTTON_3,
-	BUTTON_4,
-	NONE
-};
-
 eButton button = NONE;
-
 unsigned long lastButtonPress;
 unsigned long buttonDebounce = 200;
 
@@ -151,6 +163,27 @@ void IRAM_ATTR button_4ISR()
 	}
 }
 
+void guiInitialize()
+{
+	pinMode(BUTTON_1_PIN, INPUT);
+	pinMode(BUTTON_2_PIN, INPUT);
+	pinMode(BUTTON_3_PIN, INPUT);
+	pinMode(BUTTON_4_PIN, INPUT);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button_1ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_2_PIN), button_2ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_3_PIN), button_3ISR, FALLING);
+	attachInterrupt(digitalPinToInterrupt(BUTTON_4_PIN), button_4ISR, FALLING);
+	display.begin();
+	display.clearDisplay();
+}
+
+void drawNaviBar()
+{
+	navigationBar.fillScreen(WHITE);
+	navigationBar.fillRect(0, 0, width, navigationBar.height(), BLACK);
+	display.drawBitmap(0, height - navigationBar.height(), navigationBar.getBuffer(), navigationBar.width(), navigationBar.height(), WHITE, BLACK);
+}
+
 void displayMenu()
 {
 	display.setTextSize(1);
@@ -171,20 +204,6 @@ void displayMenu()
 		}
 		display.println(currentMenu->elements[i].name);
 	}
-}
-
-void guiInitialize()
-{
-	pinMode(BUTTON_1_PIN, INPUT);
-	pinMode(BUTTON_2_PIN, INPUT);
-	pinMode(BUTTON_3_PIN, INPUT);
-	pinMode(BUTTON_4_PIN, INPUT);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_1_PIN), button_1ISR, FALLING);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_2_PIN), button_2ISR, FALLING);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_3_PIN), button_3ISR, FALLING);
-	attachInterrupt(digitalPinToInterrupt(BUTTON_4_PIN), button_4ISR, FALLING);
-	display.begin();
-	display.clearDisplay();
 }
 
 void mainScreen()
@@ -210,52 +229,49 @@ void mainScreen()
 	display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
-// void screenTest(String motive = "light")
-// {
-// 	static const unsigned char PROGMEM image_paint_0_bits[] = {0x07, 0xff, 0xc0, 0x0f, 0xff, 0xe0, 0x18, 0x00, 0x30, 0x33, 0xff, 0x98, 0x67, 0xff, 0xcc, 0xcc, 0x00, 0x66, 0x99, 0xff, 0x32, 0xb3, 0xff, 0x9a, 0xa6, 0x00, 0xca, 0xac, 0xfe, 0x6a, 0xa9, 0xff, 0x2a, 0x2b, 0x01, 0xa8, 0x0a, 0x7c, 0xa0, 0x02, 0xfe, 0x80, 0x00, 0xfe, 0x00, 0x00, 0xfe, 0x00};
-// 	int background = WHITE;
-// 	int foreground = BLACK;
+void screenTest()
+{
+	String motive = "light";
+	static const unsigned char PROGMEM image_paint_0_bits[] = {0x07, 0xff, 0xc0, 0x0f, 0xff, 0xe0, 0x18, 0x00, 0x30, 0x33, 0xff, 0x98, 0x67, 0xff, 0xcc, 0xcc, 0x00, 0x66, 0x99, 0xff, 0x32, 0xb3, 0xff, 0x9a, 0xa6, 0x00, 0xca, 0xac, 0xfe, 0x6a, 0xa9, 0xff, 0x2a, 0x2b, 0x01, 0xa8, 0x0a, 0x7c, 0xa0, 0x02, 0xfe, 0x80, 0x00, 0xfe, 0x00, 0x00, 0xfe, 0x00};
+	int background = WHITE;
+	int foreground = BLACK;
 
-// 	if (motive == "light")
-// 	{
-// 		background = WHITE;
-// 		foreground = BLACK;
-// 	}
-// 	else if (motive == "dark")
-// 	{
-// 		background = BLACK;
-// 		foreground = WHITE;
-// 	}
+	if (motive == "light")
+	{
+		background = WHITE;
+		foreground = BLACK;
+	}
+	else if (motive == "dark")
+	{
+		background = BLACK;
+		foreground = WHITE;
+	}
 
-// 	display.fillScreen(background);
-// 	display.drawLine(1, 209, 399, 209, foreground);
-// 	display.drawRect(10, 216, 70, 20, foreground);
-// 	display.setTextColor(foreground);
-// 	display.setTextSize(1);
-// 	display.setTextWrap(false);
-// 	display.setCursor(36, 222);
-// 	display.print(button_1);
-// 	display.drawLine(11, 215, 80, 215, foreground);
-// 	display.drawRect(110, 215, 70, 20, foreground);
-// 	display.drawLine(80, 234, 80, 216, foreground);
-// 	display.setCursor(126, 222);
-// 	display.print(button_2);
-// 	display.drawLine(111, 214, 180, 214, foreground);
-// 	display.drawLine(180, 233, 180, 215, foreground);
-// 	display.drawRect(210, 215, 70, 20, foreground);
-// 	display.setCursor(219, 222);
-// 	display.print(button_3);
-// 	display.drawLine(211, 214, 280, 214, foreground);
-// 	display.drawLine(280, 233, 280, 215, foreground);
-// 	display.drawRect(309, 215, 70, 20, foreground);
-// 	display.setCursor(333, 221);
-// 	display.print(button_4);
-// 	display.drawLine(310, 214, 379, 214, foreground);
-// 	display.drawLine(379, 233, 379, 215, foreground);
-// 	display.drawLine(1, 207, 399, 207, foreground);
-// 	display.drawLine(0, 23, 399, 23, foreground);
-// 	display.drawBitmap(5, 4, image_paint_0_bits, 23, 16, foreground);
-// }
+	display.fillScreen(background);
+	display.drawLine(1, 209, 399, 209, foreground);
+	display.drawRect(10, 216, 70, 20, foreground);
+	display.setTextColor(foreground);
+	display.setTextSize(1);
+	display.setTextWrap(false);
+	display.setCursor(36, 222);
+	display.drawLine(11, 215, 80, 215, foreground);
+	display.drawRect(110, 215, 70, 20, foreground);
+	display.drawLine(80, 234, 80, 216, foreground);
+	display.setCursor(126, 222);
+	display.drawLine(111, 214, 180, 214, foreground);
+	display.drawLine(180, 233, 180, 215, foreground);
+	display.drawRect(210, 215, 70, 20, foreground);
+	display.setCursor(219, 222);
+	display.drawLine(211, 214, 280, 214, foreground);
+	display.drawLine(280, 233, 280, 215, foreground);
+	display.drawRect(309, 215, 70, 20, foreground);
+	display.setCursor(333, 221);
+	display.drawLine(310, 214, 379, 214, foreground);
+	display.drawLine(379, 233, 379, 215, foreground);
+	display.drawLine(1, 207, 399, 207, foreground);
+	display.drawLine(0, 23, 399, 23, foreground);
+	display.drawBitmap(5, 4, image_paint_0_bits, 23, 16, foreground);
+}
 
 void artificialHorizon()
 {
@@ -317,23 +333,24 @@ void guiTask(void *parameters)
 
 			case BUTTON_2:
 				button = NONE;
-
+				loopFunction = artificialHorizon;
 				break;
 
 			case BUTTON_3:
 				button = NONE;
+				loopFunction = screenTest;
 				break;
 
 			case BUTTON_4:
 				button = NONE;
+				lastLoopFunction = loopFunction;
+				loopFunction = NULL;
 				settings_flag = true;
 				break;
 			}
 		}
 		else
 		{
-			lastLoopFunction = loopFunction;
-			loopFunction = NULL;
 			switch (button)
 			{
 			// Move down
@@ -376,8 +393,9 @@ void guiTask(void *parameters)
 				button = NONE;
 				if (currentMenu == &settingsMenu)
 				{
-					settings_flag = false;
+					display.clearDisplay();
 					loopFunction = lastLoopFunction;
+					settings_flag = false;
 				}
 				if (currentMenu->parent != NULL)
 				{
