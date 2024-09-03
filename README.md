@@ -62,7 +62,7 @@
 | Date   | Time [h] | Things done              |
 |--------|----------|--------------------------|
 |2.09.24 |    6     |work plan, menu framwework|
-|3.09.24 |          |                          |
+|3.09.24 |    2     |3d model update, menu     |
 
 ## Sources
 
