@@ -20,6 +20,7 @@ static bool isConnected = false;
 
 bool bridgeActive = true;
 
+
 bool getConnectionStatus() {
     return isConnected;
 }
@@ -36,10 +37,17 @@ UavSysText getUavSysText() {
     return sUavSysText;
 }
 
+/**
+ * @brief Initialize communication with MAVLink receiver
+ */
 void mavlinkInitialize() {
     Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
 }
 
+/**
+ * @brief Task for sending MAVLink messages
+ * @param parameters
+ */
 void sendMavlinkMsgTask(void * parameters) {
     for(;;) {
         // Heartbeat
@@ -70,10 +78,17 @@ void sendMavlinkMsgTask(void * parameters) {
     }
 }
 
+/**
+ * @brief Create queue for packets
+ */
 void createQueue() {
     sQueue = xQueueCreate(1, sizeof(Packet));
 }
 
+/**
+ * @brief Access the queue
+ * @return data packet from queue
+ */
 Packet accessQueue() {
   Packet packet;
   if (xQueueReceive(sQueue, &packet, portMAX_DELAY)) {
@@ -81,15 +96,26 @@ Packet accessQueue() {
   }
 }
 
+/**
+ * @brief Check if packet is available
+ * @return true if packet is available
+ */
 bool packetAvailable() {
     return xQueuePeek(sQueue, NULL, 0);
 }
 
+/**
+ * @brief Flush serial buffer
+ */
 void serialFlushRx(void)
 {
   while (Serial2.available() > 0) { Serial2.read(); }
 }
 
+/**
+ * @brief Task for decoding telemetry
+ * @param parameters
+ */
 void decodeTelemetryTask(void * parameters){
     mavlink_status_t status;
     mavlink_message_t msg;

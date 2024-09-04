@@ -163,6 +163,10 @@ void IRAM_ATTR button_4ISR()
 	}
 }
 
+
+/**
+ * @brief Initializes buttons and display
+ */
 void guiInitialize()
 {
 	pinMode(BUTTON_1_PIN, INPUT);
@@ -177,6 +181,9 @@ void guiInitialize()
 	display.clearDisplay();
 }
 
+/**
+ * @brief Draws navigation bar at the bottom of the screen
+ */
 void drawNaviBar()
 {
 	navigationBar.fillScreen(WHITE);
@@ -184,6 +191,9 @@ void drawNaviBar()
 	display.drawBitmap(0, height - navigationBar.height(), navigationBar.getBuffer(), navigationBar.width(), navigationBar.height(), WHITE, BLACK);
 }
 
+/**
+ * @brief Draws menu structure
+ */
 void displayMenu()
 {
 	display.setTextSize(1);

@@ -5,6 +5,10 @@
 
 #define CONV_COEFF 10000000
 
+/**
+ * @brief Function to convert WGS84 coordinates to cartesian coordinates
+ * @param coord Wgs84Coord structure with latitude, longitude and altitude
+ */
 CartCoord CartTransform(Wgs84Coord &coord) {
   CartCoord transform;
   float lat_rad = radians(coord.lat / CONV_COEFF);
@@ -19,6 +23,12 @@ CartCoord CartTransform(Wgs84Coord &coord) {
   return transform;
 };
 
+/**
+ * @brief Function to calculate distance, azimuth and elevation between two WGS84 coordinates
+ * @param c1 Wgs84Coord structure with latitude, longitude and altitude
+ * @param c2 Wgs84Coord structure with latitude, longitude and altitude
+ * @param coeff Coefficient used to convert latitude and longitude integer values to floats
+ */
 AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2, int coeff = CONV_COEFF){
   AngleValues values;
   int R = 6371000;
