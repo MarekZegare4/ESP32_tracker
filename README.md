@@ -15,7 +15,7 @@
     - [x] Wio e5 mini case
     - [x] Main axis connection
     - [x] RX holder
-    - [ ] Pan servo mount
+    - [x] Pan servo mount
 - [ ] Test pan and tilt movement
 
 ### Software
@@ -68,7 +68,7 @@
 |4.09.24 |--------------------------|
 |5.09.24 |wio e5 case               |
 |6.09.24 |rx mount, pan assembly    |
-|7.09.24 |                          |
+|7.09.24 |pan servo mount           |
 
 ## Sources
 
