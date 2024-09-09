@@ -67,8 +67,10 @@
 |3.09.24 |3d model update, menu     |
 |4.09.24 |--------------------------|
 |5.09.24 |wio e5 case               |
-|6.09.24 |rx mount, pan assembly    |
-|7.09.24 |pan servo mount           |
+|6.09.24 |rx mount, pan - tilt assembly    |
+|7.09.24 |tilt servo mount          |
+|8.09.24 |pan-tilt assembly tweaks  |
+|9.09.24 |tilt axel                 |
 
 ## Sources
 
