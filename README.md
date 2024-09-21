@@ -12,9 +12,11 @@
 ### Hardware
 
 - [ ] Finish designign top part
-    - [ ] Wio e5 mini case
-    - [ ] Main axis connection
-    - [ ] RX holder
+    - [x] Wio e5 mini case
+    - [x] Main axis connection
+    - [x] RX holder
+    - [x] Pan servo mount
+- [ ] Test pan and tilt movement
 
 ### Software
 
@@ -59,10 +61,16 @@
 
 ## Work tracker
 
-| Date   | Time [h] | Things done              |
-|--------|----------|--------------------------|
-|2.09.24 |    6     |work plan, menu framwework|
-|3.09.24 |    2     |3d model update, menu     |
+| Date   | Things done              |
+|--------|--------------------------|
+|2.09.24 |work plan, menu framwework|
+|3.09.24 |3d model update, menu     |
+|4.09.24 |--------------------------|
+|5.09.24 |wio e5 case               |
+|6.09.24 |rx mount, pan - tilt assembly    |
+|7.09.24 |tilt servo mount          |
+|8.09.24 |pan-tilt assembly tweaks  |
+|9.09.24 |tilt axel                 |
 
 ## Sources
 
