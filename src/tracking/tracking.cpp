@@ -27,11 +27,11 @@ void trackingInitialize()
 {
     Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
     st.pSerial = &Serial1;
-    bmm150.begin();
-    bmm150.setOperationMode(BMM150_POWERMODE_NORMAL);
-    bmm150.setPresetMode(BMM150_PRESETMODE_HIGHACCURACY);
-    bmm150.setRate(BMM150_DATA_RATE_10HZ);
-    bmm150.setMeasurementXYZ();
+    // bmm150.begin();
+    // bmm150.setOperationMode(BMM150_POWERMODE_NORMAL);
+    // bmm150.setPresetMode(BMM150_PRESETMODE_HIGHACCURACY);
+    // bmm150.setRate(BMM150_DATA_RATE_10HZ);
+    // bmm150.setMeasurementXYZ();
 }
 
 int angleToServo(int angle)
@@ -43,10 +43,17 @@ void trackingTask(void *parameters)
 {
 for (;;)
     {
+        Serial.println(st.Ping(1));
+        st.WritePosEx(1, 0, 4000, 50);
+        delay(5000);
+        st.WritePosEx(1, 2048, 1500, 50);
+        delay(5000);
+        st.WritePosEx(1, 4096, 1500, 50);
+        delay(5000);
         //Wgs84Coord uavPos;
         //sDistAziElev = DistAziElev(uavPos, uavPos);
-        sCompassDegree = bmm150.getCompassDegree();
-        st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); // To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        //sCompassDegree = bmm150.getCompassDegree();
+        //st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); // To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
+        //vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
