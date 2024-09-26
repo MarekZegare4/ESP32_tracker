@@ -4,7 +4,7 @@
 #include "mavlink/mav.h"
 #include "BluetoothSerial.h"
 
-#define WIFI_POWER  WIFI_POWER_2dBm
+#define WIFI_POWER WIFI_POWER_2dBm
 // WiFi settings
 String ssid = "mLRS UDP"; // Wifi name
 String password = ""; // "thisisgreat"; // WiFi password, "" makes it an open AP
@@ -33,8 +33,10 @@ void wifiBridgeInitialize() {
 }
 
 void bluetoothBridgeInitialize() {
-  btSerial.begin("Tracker");
-  btSerial.setPin(pin);
+  while(!btSerial.begin("Tracker")){
+    delay(200);
+  };
+  //btSerial.setPin(pin);
 }
 
 void sendBTMsg(uint8_t *buf, uint8_t len) {

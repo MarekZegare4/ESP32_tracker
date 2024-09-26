@@ -17,7 +17,7 @@ void gpsInitialize()
   {
     delay(1000);
   }
-
+  Serial.println("Connected to u-blox module!");
   myGNSS.setSPIOutput(COM_TYPE_UBX); // Set the SPI port to output UBX only (turn off NMEA noise)
 
   // myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT); //Optional: save (only) the communications port settings to flash and BBR
