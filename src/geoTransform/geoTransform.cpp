@@ -5,6 +5,8 @@
 
 #define CONV_COEFF 10000000
 
+// http://www.movable-type.co.uk/scripts/latlong.html
+
 /**
  * @brief Function to convert WGS84 coordinates to cartesian coordinates
  * @param coord Wgs84Coord structure with latitude, longitude and altitude

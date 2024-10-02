@@ -47,7 +47,7 @@ class MenuElement {
 		enum eFunctionType functionType;
 		bool functionToggle;
 		class Menu *subMenu;
-};
+}; 
 
 void mainScreen();
 void artificialHorizon();
