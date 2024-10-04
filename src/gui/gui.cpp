@@ -163,7 +163,6 @@ void IRAM_ATTR button_4ISR()
 	}
 }
 
-
 /**
  * @brief Initializes buttons and display
  */

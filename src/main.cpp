@@ -15,12 +15,12 @@ void setup()
   bluetoothBridgeInitialize(); // Inicjalizacja mostu Bluetooth
   guiInitialize();    // Inicjalizacja wyświetlacza
   gpsInitialize();        // Inicjalizacja GNSS
-  xTaskCreatePinnedToCore(trackingTask, "Servo + Magnetometer", 2000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(guiTask, "GUI", 5000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(sendMavlinkMsgTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(decodeTelemetryTask, "Telemetry decoding", 5000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(bluetoothBridgeTask, "Bridge", 5000, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(gpsTask, "GPS", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(trackingTask, "Movement and stabilization", 2048, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(guiTask, "GUI", 4096, NULL, 1, NULL, 1);
+  //xTaskCreatePinnedToCore(sendMavlinkMsgTask, "Heartbeat", 2000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(decodeTelemetryTask, "Telemetry decoding", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(bluetoothBridgeTask, "Bridge", 4096, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(gpsTask, "GPS", 2048, NULL, 1, NULL, 1);
 }
 
 void loop()
