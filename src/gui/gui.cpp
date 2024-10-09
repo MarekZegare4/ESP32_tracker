@@ -21,6 +21,10 @@
 bool button_flag = false;
 bool settings_flag = false;
 
+eButton button = NONE;
+unsigned long lastButtonPress;
+unsigned long buttonDebounce = 200;
+
 void (*loopFunction)() = mainScreen;
 void (*lastLoopFunction)() = NULL;
 
@@ -52,6 +56,7 @@ extern Menu bridgeModeMenu;
 // ===============================
 void polishPopup(void *parameters);
 void englishPopup(void *parameters);
+void servoTest(void *parameters);
 // ===============================
 
 // Menu state variables
@@ -64,6 +69,7 @@ MenuElement settingsElements[] = {
 	{"System status", NULL, NULL, SINGLE, false, NULL},
 	{"Language", NULL, NULL, SINGLE, false, &languageMenu},
 	{"Bridge mode", NULL, NULL, SINGLE, false, &bridgeModeMenu},
+	{"Servo demo", &servoTest, NULL, LOOP, false, NULL}
 };
 
 MenuElement languageElements[] = {
@@ -117,11 +123,24 @@ void polishPopup(void *parameters)
 	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
 }
 
+void servoTest(void *parameters)
+{
+	display.clearDisplay();
+	popupWindow.fillScreen(WHITE);
+	popupWindow.drawRect(0, 0, popupWindow.width(), popupWindow.height(), BLACK);
+	popupWindow.setTextSize(1);
+	popupWindow.setTextColor(BLACK);
+	popupWindow.setCursor(5, 10);
+	centerPerfectly("Serwo demo", 0, 0, popupWindow);
+	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
+	display.refresh();
+	servoDemo();
+	Serial.println("Servo test");
+}
+
 // ----------------------------------------------------------------
 
-eButton button = NONE;
-unsigned long lastButtonPress;
-unsigned long buttonDebounce = 200;
+
 
 void IRAM_ATTR button_1ISR()
 {
@@ -395,7 +414,16 @@ void guiTask(void *parameters)
 					// currentMenu->items[currentMenu->selected].action(currentMenu->items[currentMenu->selected].param);
 					currentFunction = currentMenu->elements[currentMenu->selectedElement].function;
 					currentParameters = currentMenu->elements[currentMenu->selectedElement].parameters;
-					currentFunction(currentParameters);
+					eFunctionType currentFunctionType = currentMenu->elements[currentMenu->selectedElement].functionType;
+					if (currentFunctionType == SINGLE) {
+						currentFunction(currentParameters);
+					}
+					else if(currentFunctionType == LOOP) {
+						while(button == NONE)
+						{
+							currentFunction(currentParameters);
+						}
+					}
 				}
 				break;
 

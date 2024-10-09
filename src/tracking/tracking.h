@@ -4,3 +4,5 @@
 void trackingTask(void * parameters);
 void trackingInitialize();
 float getCompassDegree();
+int readCurrent();
+void servoDemo();

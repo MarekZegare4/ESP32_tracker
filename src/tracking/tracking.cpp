@@ -49,11 +49,25 @@ int angleToServo(int angle)
     return 4096 / 360 * angle;
 }
 
+void servoDemo()
+{   
+    st.WritePosEx(1, 2048, 1500);
+    servo.write(45);
+    delay(1000);
+    st.WritePosEx(1, 0, 1500);
+    servo.write(0);
+    delay(1000);
+}
+
+int readCurrent(){
+    return st.ReadCurrent(1);
+}
+
 void trackingTask(void *parameters)
 {
 for (;;)
     {
-        // Serial.println(st.Ping(1));
+        //Serial.println(st.Ping(1));
         // servo.write(90);
         // st.WritePosEx(1, 2048, 1500, 50);
         // delay(1000);
