@@ -67,8 +67,8 @@ void mavlinkInitialize()
 void sendHeartbeat()
 {
     // Heartbeat
-    uint8_t system_id = 10;
-    uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
+    uint8_t system_id = 200;
+    uint8_t component_id = MAV_COMP_ID_MISSIONPLANNER;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);

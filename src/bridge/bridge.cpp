@@ -23,6 +23,7 @@ int wifi_channel = 6; // WiFi channel, 1-13
 BluetoothSerial btSerial;
 const char *pin = "1234";
 
+// WiFi.mode(WIFI_MODE_NULL); turns off wifi
 void wifiBridgeInitialize() {
   serialFlushRx();
   WiFi.mode(WIFI_AP); // seems not to be needed, done by WiFi.softAP()?
@@ -32,6 +33,7 @@ void wifiBridgeInitialize() {
   udp.begin(port_udp);
 }
 
+// btStop() turns off bluetooth
 void bluetoothBridgeInitialize() {
   while(!btSerial.begin("Tracker")){
     delay(200);
