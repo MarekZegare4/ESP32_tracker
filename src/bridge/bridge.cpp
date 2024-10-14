@@ -36,8 +36,10 @@ void wifiBridgeInitialize() {
 // btStop() turns off bluetooth
 void bluetoothBridgeInitialize() {
   while(!btSerial.begin("Tracker")){
-    delay(200);
-  };
+    Serial.println("Could not start bluetooth");
+    delay(1000);
+  }
+  Serial.println("Bluetooth started"); 
   //btSerial.setPin(pin);
 }
 
@@ -52,8 +54,8 @@ void sendUDPPacket(uint8_t *buf, uint8_t len) {
 }
 
 void wifiBridgeTask(void * parameters) {
-  Packet packet;
   for(;;){
+    Packet *packet;
     uint8_t buf[256]; // working buffer
     int packetSize = udp.parsePacket();
     if (packetSize) {
@@ -63,16 +65,18 @@ void wifiBridgeTask(void * parameters) {
       }
     }
     packet = accessQueue();
-    udp.beginPacket(ip_udp, port_udp);
-    udp.write(packet.buf, packet.len);
-    udp.endPacket();
+    if (packet != NULL) {
+      udp.beginPacket(ip_udp, port_udp);
+      udp.write(packet->buf, packet->len);
+      udp.endPacket();
+    }
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
 
 void bluetoothBridgeTask(void * parameters) {
-  Packet packet;
   for(;;){
+    Packet *packet;
     uint8_t buf[256];
     if (Serial2.availableForWrite()) {
       int len = btSerial.available();
@@ -85,7 +89,9 @@ void bluetoothBridgeTask(void * parameters) {
       Serial2.write(buf, len);
     }
     packet = accessQueue();
-    btSerial.write(packet.buf, packet.len);
+    if (packet != NULL) {
+      btSerial.write(packet->buf, packet->len);
+    }
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }

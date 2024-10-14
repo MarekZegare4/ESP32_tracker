@@ -32,7 +32,7 @@ UavDataGPS getUavGPS();
 UavSysText getUavSysText();
 void serialFlushRx();
 void createQueue();
-Packet accessQueue();
+Packet * accessQueue();
 bool packetAvailable();
 void mavlinkInitialize();
 void sendMavlinkMsgTask(void * parameters);

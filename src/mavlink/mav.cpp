@@ -1,5 +1,6 @@
 #include "common/mavlink.h"
 #include <Arduino.h>
+#include "BluetoothSerial.h"
 #include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "bridge/bridge.h"
@@ -12,13 +13,15 @@
 #define LRS_TX 32
 #define MLRS_BAUD 57600
 
-static QueueHandle_t sQueue;
-static UavDataGPS sUavDataGPS;
-static UavDataAttitude sUavDataAttitude;
-static UavSysText sUavSysText;
-static bool isConnected = false;
+QueueHandle_t sQueue;
+UavDataGPS sUavDataGPS;
+UavDataAttitude sUavDataAttitude;
+UavSysText sUavSysText;
 
+bool isConnected = false;
 bool bridgeActive = true;
+
+BluetoothSerial btSerialtest;
 
 bool getConnectionStatus()
 {
@@ -46,6 +49,7 @@ UavSysText getUavSysText()
 void mavlinkInitialize()
 {
     Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
+    btSerialtest.begin("Tracker");
 }
 
 // /**
@@ -114,12 +118,16 @@ void createQueue()
  * @brief Access the queue
  * @return data packet from queue
  */
-Packet accessQueue()
+Packet qPacket = {0, {0}};
+Packet * accessQueue()
 {
-    Packet packet;
-    if (xQueueReceive(sQueue, &packet, portMAX_DELAY))
+    if (sQueue != NULL && xQueueReceive(sQueue, &qPacket, 0) == pdTRUE)
     {
-        return packet;
+        return &qPacket;
+    }
+    else
+    {
+        return NULL;
     }
 }
 
@@ -157,12 +165,14 @@ void decodeTelemetryTask(void *parameters)
     uint16_t lastHBTime = 0;
     for (;;)
     {
-        // Send heartbeat
+        // Send heartbeat a
         currentHBTime = millis();
         if (currentHBTime - lastHBTime >= HBPeriod)
         {
-            sendHeartbeat();
-            lastHBTime = currentHBTime;
+            if(Serial2.availableForWrite()) {
+                sendHeartbeat();
+                lastHBTime = currentHBTime;
+            }   
         }
 
         uint8_t buf[256]; // working buffer
@@ -171,10 +181,26 @@ void decodeTelemetryTask(void *parameters)
             int len = Serial2.read(buf, sizeof(buf));
             if (bridgeActive)
             {
-                Packet packet;
-                packet.len = len;
-                std::copy(buf, buf + len, packet.buf);
-                xQueueSend(sQueue, &packet, portMAX_DELAY);
+                // Packet packet;
+                // packet.len = len;
+                // std::copy(buf, buf + len, packet.buf);
+                // xQueueSend(sQueue, &packet, portMAX_DELAY);
+                
+                // Bridge part
+
+                uint8_t buf2[256];
+                if (Serial2.availableForWrite()) {
+                    int len2 = btSerialtest.available();
+                    if(len2 > sizeof(buf2)) {
+                        len2 = sizeof(buf2);
+                    }
+                    for (int i = 0; i < len2; i++) {
+                        buf2[i] = btSerialtest.read();
+                    }
+                    Serial2.write(buf2, len2);
+                }
+                btSerialtest.write(buf, len);
+
             }
             for (uint16_t i = 0; i < len; i++)
             {
@@ -234,6 +260,7 @@ void decodeTelemetryTask(void *parameters)
                 }
             }
         }
-        vTaskDelay(50 / portTICK_PERIOD_MS);
+        //clear the buffer
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
