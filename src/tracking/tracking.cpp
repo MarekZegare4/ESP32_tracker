@@ -8,18 +8,26 @@
 #include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "tracking.h"
-#include "geoTransform/geoTransform.h"
+#include "tracking/geoTransform/geoTransform.h"
+#include <SPI.h> //Needed for SPI to GNSS
+#include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
 
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
 
 #define SERVO_RX 16
 #define SERVO_TX 17
 #define SERVO_TILT_PIN 4
+#define myCS 15 // Define the GPIO pin number for the SPI Chip Select. Change this if required
+#define myClockSpeed 1000000 // Define what SPI clock speed to use. Change this if required
+
 
 Servo servo;
 SMS_STS st;
 Adafruit_LIS3MDL lis3mdl;
 Adafruit_LSM6DS3TRC lsm6ds3trc;
+SFE_UBLOX_GNSS_SPI myGNSS; // SFE_UBLOX_GNSS_SPI uses SPI. For I2C or Serial, see Example1 and Example2
+SPIClass spiPort(HSPI);
+TrackerDataGPS gpsData;
 
 // DFRobot_BMM150_I2C bmm150(&Wire, I2C_ADDRESS_4);
 
@@ -44,6 +52,13 @@ void trackingInitialize()
     servo.write(0);
     lis3mdl.begin_I2C(0x1C, &Wire);
     lsm6ds3trc.begin_I2C(0x6A, &Wire);
+    while (myGNSS.begin(spiPort, myCS, myClockSpeed) == false) // Connect to the u-blox module using the port, chip select pin and speed defined above
+  {
+    delay(1000);
+  }
+  Serial.println("Connected to u-blox module!");
+  myGNSS.setSPIOutput(COM_TYPE_UBX); // Set the SPI port to output UBX only (turn off NMEA noise)
+
     
     // lsm6ds3.begin_I2C();
     // bmm150.begin();
@@ -72,12 +87,25 @@ int readCurrent(){
     return st.ReadCurrent(1);
 }
 
+TrackerDataGPS getTrackerGPS()
+{
+  return gpsData;
+}
+
 sensor_t sensor;
 float x, y, z;
 void trackingTask(void *parameters)
 {
     for (;;)
     {
+        if (myGNSS.getPVT() == true)
+    {
+      gpsData.latitude = myGNSS.getLatitude();
+      gpsData.longitude = myGNSS.getLongitude();
+      gpsData.altitude = myGNSS.getAltitudeMSL(); // Altitude above Mean Sea Level
+      gpsData.fixType = myGNSS.getFixType();
+      gpsData.satCount = myGNSS.getSIV();
+    }
         // lis3mdl.getSensor(&sensor);
         // Serial.print("Sensor: "); Serial.println(sensor.name);
         // lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
