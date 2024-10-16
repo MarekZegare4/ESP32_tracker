@@ -2,7 +2,6 @@
 #include "gui.h"
 #include "mavlink/mav.h"
 #include "tracking/tracking.h"
-#include "gps/gps.h"
 
 #define DISPLAY_CS 5
 #define BLACK 0

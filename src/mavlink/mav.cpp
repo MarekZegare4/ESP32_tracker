@@ -4,8 +4,7 @@
 #include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "bridge/bridge.h"
-#include "gps/gps.h"
-#include "bridge/bridge.h"
+#include "tracking/tracking.h"
 
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
 
