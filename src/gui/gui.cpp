@@ -56,6 +56,9 @@ extern Menu bridgeModeMenu;
 void polishPopup(void *parameters);
 void englishPopup(void *parameters);
 void servoTest(void *parameters);
+void bluetoothBridge(void *parameters);
+void udpBridge(void *parameters);
+void usbBridge(void *parameters);
 // ===============================
 
 // Menu state variables
@@ -68,8 +71,7 @@ MenuElement settingsElements[] = {
 	{"System status", NULL, NULL, SINGLE, false, NULL},
 	{"Language", NULL, NULL, SINGLE, false, &languageMenu},
 	{"Bridge mode", NULL, NULL, SINGLE, false, &bridgeModeMenu},
-	{"Servo demo", &servoTest, NULL, LOOP, false, NULL}
-};
+	{"Servo demo", &servoTest, NULL, LOOP, false, NULL}};
 
 MenuElement languageElements[] = {
 	{"English", NULL, NULL, SINGLE, false, NULL},
@@ -77,9 +79,9 @@ MenuElement languageElements[] = {
 };
 
 MenuElement bridgeModeElements[] = {
-	{"WiFi", NULL, NULL, SINGLE, false, NULL},
-	{"BT", NULL, NULL, SINGLE, false, NULL},
-	{"USB", NULL, NULL, SINGLE, false, NULL}};
+	{"UDP", udpBridge, NULL, SINGLE, false, NULL},
+	{"BT", bluetoothBridge, NULL, SINGLE, false, NULL},
+	{"USB", usbBridge, NULL, SINGLE, false, NULL}};
 
 // name, elements, element count, selected element, parent
 Menu settingsMenu = {"Settings", settingsElements, NUM_ELEMENTS(settingsElements), 0, NULL};
@@ -137,9 +139,46 @@ void servoTest(void *parameters)
 	Serial.println("Servo test");
 }
 
+void udpBridge(void *parameters)
+{
+	setBridgeType(UDP);
+	display.clearDisplay();
+	popupWindow.fillScreen(WHITE);
+	popupWindow.drawRect(0, 0, popupWindow.width(), popupWindow.height(), BLACK);
+	popupWindow.setTextSize(1);
+	popupWindow.setTextColor(BLACK);
+	popupWindow.setCursor(5, 10);
+	centerPerfectly("Bridge mode changed to UDP", 0, 0, popupWindow);
+	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
+}
+
+void bluetoothBridge(void *parameters)
+{
+	setBridgeType(BLUETOOTH);
+	display.clearDisplay();
+	popupWindow.fillScreen(WHITE);
+	popupWindow.drawRect(0, 0, popupWindow.width(), popupWindow.height(), BLACK);
+	popupWindow.setTextSize(1);
+	popupWindow.setTextColor(BLACK);
+	popupWindow.setCursor(5, 10);
+	centerPerfectly("Bridge mode changed to Bluetooth", 0, 0, popupWindow);
+	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
+}
+
+void usbBridge(void *parameters)
+{
+	setBridgeType(USB);
+	display.clearDisplay();
+	popupWindow.fillScreen(WHITE);
+	popupWindow.drawRect(0, 0, popupWindow.width(), popupWindow.height(), BLACK);
+	popupWindow.setTextSize(1);
+	popupWindow.setTextColor(BLACK);
+	popupWindow.setCursor(5, 10);
+	centerPerfectly("Bridge mode changed to USB", 0, 0, popupWindow);
+	display.drawBitmap(width / 4, height / 4, popupWindow.getBuffer(), popupWindow.width(), popupWindow.height(), WHITE, BLACK);
+}
+
 // ----------------------------------------------------------------
-
-
 
 void IRAM_ATTR button_1ISR()
 {
@@ -242,7 +281,7 @@ void mainScreen()
 	// text.println("Mag heading: " + String(getCompassDegree()));
 	text.println("UAV");
 	text.setCursor(5, 20);
-	text.println("GPS: " + String(getUavGPS().global_lat) + " " + String(getUavGPS().global_lon) + " " + String(getUavGPS().global_alt));
+	text.println("GPS: " + String(getUavGPS()->global_lat) + " " + String(getUavGPS()->global_lon) + " " + String(getUavGPS()->global_alt));
 	text.setCursor(5, 40);
 	text.println("Tracker");
 	text.setCursor(5, 50);
@@ -252,7 +291,7 @@ void mainScreen()
 	text.setCursor(5, 80);
 	text.println("SYS TEXT");
 	text.setCursor(5, 90);
-	text.println(String(getUavSysText().text));
+	text.println(String(getUavSysText()->text));
 	display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
@@ -307,8 +346,8 @@ void artificialHorizon()
 	int srodekX = a_h.width() / 2;
 	int srodekY = a_h.width() / 2;
 	int szer = 3;
-	int y1 = (srodekY + a_h.width() / 2 * (tan((getUavAttitude().roll))));
-	int y2 = (srodekY - a_h.width() / 2 * (tan((getUavAttitude().roll))));
+	int y1 = (srodekY + a_h.width() / 2 * (tan((getUavAttitude()->roll))));
+	int y2 = (srodekY - a_h.width() / 2 * (tan((getUavAttitude()->roll))));
 	// canvas.drawLine(display.width()/2, y1, display.width(), y2, BLACK);
 	a_h.drawLine(0, 0, 0, a_h.height(), BLACK);
 	a_h.drawLine(0, a_h.height() - 1, a_h.width(), a_h.height() - 1, BLACK);
@@ -413,11 +452,13 @@ void guiTask(void *parameters)
 					currentFunction = currentMenu->elements[currentMenu->selectedElement].function;
 					currentParameters = currentMenu->elements[currentMenu->selectedElement].parameters;
 					eFunctionType currentFunctionType = currentMenu->elements[currentMenu->selectedElement].functionType;
-					if (currentFunctionType == SINGLE) {
+					if (currentFunctionType == SINGLE)
+					{
 						currentFunction(currentParameters);
 					}
-					else if(currentFunctionType == LOOP) {
-						while(button == NONE)
+					else if (currentFunctionType == LOOP)
+					{
+						while (button == NONE)
 						{
 							currentFunction(currentParameters);
 						}

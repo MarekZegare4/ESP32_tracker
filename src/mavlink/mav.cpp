@@ -1,9 +1,9 @@
-#include "common/mavlink.h"
 #include <Arduino.h>
-#include "BluetoothSerial.h"
+#include <BluetoothSerial.h>
+#include <WiFi.h>
+#include "common/mavlink.h"
 #include "gui/gui.h"
 #include "mavlink/mav.h"
-#include "bridge/bridge.h"
 #include "tracking/tracking.h"
 
 // Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
@@ -11,58 +11,107 @@
 #define LRS_RX 33
 #define LRS_TX 32
 #define MLRS_BAUD 57600
+#define WIFI_POWER WIFI_POWER_2dBm
+
+// WiFi settings
+String ssid = "mLRS UDP"; // Wifi name
+String password = "";     // "thisisgreat"; // WiFi password, "" makes it an open AP
+
+IPAddress ip(192, 168, 4, 55);                    // connect to this IP // MissionPlanner default is 127.0.0.1, so enter
+IPAddress ip_udp(ip[0], ip[1], ip[2], ip[3] + 1); // usually the client/MissionPlanner gets assigned +1
+IPAddress ip_gateway(0, 0, 0, 0);
+IPAddress netmask(255, 255, 255, 0);
+
+int port_tcp = 5760;  // connect to this port per TCP // MissionPlanner default is 5760
+int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
+int wifi_channel = 6; // WiFi channel, 1-13
+
+BluetoothSerial SerialBT;
+WiFiUDP udp;
 
 QueueHandle_t sQueue;
 UavDataGPS sUavDataGPS;
 UavDataAttitude sUavDataAttitude;
 UavSysText sUavSysText;
 
+eBridgeType bridgeType = BLUETOOTH;
+
+bool bt_bridge_flag = false;
+bool udp_bridge_flag = false;
+
 bool isConnected = false;
 bool bridgeActive = true;
-
-BluetoothSerial btSerialtest;
 
 bool getConnectionStatus()
 {
     return isConnected;
 }
 
-UavDataGPS getUavGPS()
+UavDataGPS *getUavGPS()
 {
-    return sUavDataGPS;
+    return &sUavDataGPS;
 }
 
-UavDataAttitude getUavAttitude()
+UavDataAttitude *getUavAttitude()
 {
-    return sUavDataAttitude;
+    return &sUavDataAttitude;
 }
 
-UavSysText getUavSysText()
+UavSysText *getUavSysText()
 {
-    return sUavSysText;
+    return &sUavSysText;
+}
+void bluetoothInit()
+{
+    while (!SerialBT.begin("BT Tracker bridge"))
+    {
+        delay(1000);
+    }
+}
+
+void bluetoothDeinit()
+{
+    SerialBT.end();
+}
+
+void udpDeinit()
+{
+    udp.stop();
+}
+
+void udpInit()
+{
+    WiFi.softAPConfig(ip, ip_gateway, netmask);
+    WiFi.softAP(ssid.c_str(), (password.length()) ? password.c_str() : NULL, wifi_channel); // channel = 1 is default
+    WiFi.setTxPower(WIFI_POWER);
+    udp.begin(port_udp);
+}
+
+void setBridgeType(eBridgeType type)
+{
+    bridgeType = type;
 }
 
 /**
  * @brief Initialize communication with MAVLink receiver
  */
-void mavlinkInitialize()
+void mavlinkInit()
 {
     Serial2.begin(MLRS_BAUD, SERIAL_8N1, LRS_RX, LRS_TX);
-    btSerialtest.begin("Tracker");
-}
 
-// /**
-//  * @brief Task for sending MAVLink messages
-//  * @param parameters
-//  */
-// void sendMavlinkMsgTask(void *parameters)
-// {
-//     for (;;)
-//     {
-        
-//         vTaskDelay(1000 / portTICK_PERIOD_MS);
-//     }
-// }
+    switch (bridgeType)
+    {
+    case BLUETOOTH:
+        bluetoothInit();
+        bt_bridge_flag = true;
+        break;
+
+    case UDP:
+        udpInit();
+        udp_bridge_flag = true;
+        break;
+    }
+}
 
 /**
  * @brief Send MAVLink Heartbeat message
@@ -76,20 +125,21 @@ void sendHeartbeat()
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-    sendBTMsg(buf, len);
+    SerialBT.write(buf, len);
 }
 
 /**
  * @brief Send MAVLink Global Position message
  */
-void sendGlobalPosition() {
+void sendGlobalPosition()
+{
     // Global position
     uint8_t system_id = 10;
     uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-    
+
     uint32_t time_boot_ms = 100;
     TrackerDataGPS tracker_gps = getTrackerGPS();
     int32_t lat = tracker_gps.latitude;
@@ -102,52 +152,7 @@ void sendGlobalPosition() {
     uint16_t hdg = UINT16_MAX;
     mavlink_msg_global_position_int_pack(system_id, component_id, &msg, time_boot_ms, lat, lon, alt, realtive_alt, vx, vy, vz, hdg);
     len = mavlink_msg_to_send_buffer(buf, &msg);
-    sendBTMsg(buf, len);
-}
-
-/**
- * @brief Create queue for packets
- */
-void createQueue()
-{
-    sQueue = xQueueCreate(1, sizeof(Packet));
-}
-
-/**
- * @brief Access the queue
- * @return data packet from queue
- */
-Packet qPacket = {0, {0}};
-Packet * accessQueue()
-{
-    if (sQueue != NULL && xQueueReceive(sQueue, &qPacket, 0) == pdTRUE)
-    {
-        return &qPacket;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-/**
- * @brief Check if packet is available
- * @return true if packet is available
- */
-bool packetAvailable()
-{
-    return xQueuePeek(sQueue, NULL, 0);
-}
-
-/**
- * @brief Flush serial buffer
- */
-void serialFlushRx(void)
-{
-    while (Serial2.available() > 0)
-    {
-        Serial2.read();
-    }
+    SerialBT.write(buf, len);
 }
 
 /**
@@ -168,39 +173,100 @@ void decodeTelemetryTask(void *parameters)
         currentHBTime = millis();
         if (currentHBTime - lastHBTime >= HBPeriod)
         {
-            if(Serial2.availableForWrite()) {
+            if (Serial2.availableForWrite())
+            {
                 sendHeartbeat();
                 lastHBTime = currentHBTime;
-            }   
+            }
         }
 
         uint8_t buf[256]; // working buffer
         if (Serial2.available())
         {
             int len = Serial2.read(buf, sizeof(buf));
-            if (bridgeActive)
-            {
-                // Packet packet;
-                // packet.len = len;
-                // std::copy(buf, buf + len, packet.buf);
-                // xQueueSend(sQueue, &packet, portMAX_DELAY);
-                
-                // Bridge part
 
+            // Bridge part
+            // --------------------------------
+            switch (bridgeType)
+            {
+            case BLUETOOTH:
+            {
+                if (!bt_bridge_flag)
+                {
+                    udpDeinit();
+                    udp_bridge_flag = false;
+                    bluetoothInit();
+                    bt_bridge_flag = true;
+                }
                 uint8_t buf2[256];
-                if (Serial2.availableForWrite()) {
-                    int len2 = btSerialtest.available();
-                    if(len2 > sizeof(buf2)) {
+                if (Serial2.availableForWrite())
+                {
+                    int len2 = SerialBT.available();
+                    if (len2 > sizeof(buf2))
+                    {
                         len2 = sizeof(buf2);
                     }
-                    for (int i = 0; i < len2; i++) {
-                        buf2[i] = btSerialtest.read();
+                    for (int i = 0; i < len2; i++)
+                    {
+                        buf2[i] = SerialBT.read();
                     }
                     Serial2.write(buf2, len2);
                 }
-                btSerialtest.write(buf, len);
-
+                SerialBT.write(buf, len);
+                break;
             }
+
+            case UDP:
+            {
+                if (!udp_bridge_flag)
+                {
+                    bluetoothDeinit();
+                    bt_bridge_flag = false;
+                    udpInit();
+                    udp_bridge_flag = true;
+                }
+                int packetSize = udp.parsePacket();
+                uint8_t buf2[256];
+                if (packetSize)
+                {
+                    int len2 = udp.read(buf2, sizeof(buf2));
+                    if (Serial2.availableForWrite())
+                    {
+                        Serial2.write(buf2, len2);
+                    }
+                }
+                udp.beginPacket(ip_udp, port_udp);
+                udp.write(buf, len);
+                udp.endPacket();
+                break;
+            }
+
+            case USB:
+            {
+                if (bt_bridge_flag)
+                {
+                    bluetoothDeinit();
+                    bt_bridge_flag = false;
+                }
+                if (udp_bridge_flag)
+                {
+                    udpDeinit();
+                    udp_bridge_flag = false;
+                }
+                uint8_t buf2[256];
+                if (Serial.available())
+                {
+                    int len2 = Serial.read(buf2, sizeof(buf2));
+                    Serial2.write(buf2, len2);
+                }
+                Serial.write(buf, len);
+                break;
+            }
+            default:
+                break;
+            }
+            // Message decoding
+            // --------------------------------
             for (uint16_t i = 0; i < len; i++)
             {
                 uint8_t byte = buf[i];
@@ -259,7 +325,6 @@ void decodeTelemetryTask(void *parameters)
                 }
             }
         }
-        //clear the buffer
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }

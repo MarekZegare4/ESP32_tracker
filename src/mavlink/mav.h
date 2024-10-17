@@ -26,14 +26,22 @@ class UavSysText {
     char text[50] = "";
 };
 
+enum eBridgeType {
+  UDP,
+  BLUETOOTH,
+  USB
+};
+
 bool getConnectionStatus();
-UavDataAttitude getUavAttitude();
-UavDataGPS getUavGPS();
-UavSysText getUavSysText();
+UavDataAttitude *getUavAttitude();
+UavDataGPS *getUavGPS();
+UavSysText *getUavSysText();
 void serialFlushRx();
 void createQueue();
 Packet * accessQueue();
 bool packetAvailable();
-void mavlinkInitialize();
+void mavlinkInit();
 void sendMavlinkMsgTask(void * parameters);
 void decodeTelemetryTask(void * parameters);
+
+void setBridgeType(eBridgeType type);

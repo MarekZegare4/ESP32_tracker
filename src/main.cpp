@@ -7,7 +7,7 @@ void setup()
 {
   Serial.begin(115200);
   trackingInitialize();   // Inicjalizacja serwomechanizmu i magnetometru
-  mavlinkInitialize();    // Inicjalizacja komunikacji MAVLink
+  mavlinkInit();    // Inicjalizacja komunikacji MAVLink
   guiInitialize();    // Inicjalizacja wyświetlacza
   xTaskCreate(trackingTask, "Movement and stabilization", 2048, NULL, 1, NULL);
   xTaskCreate(guiTask, "GUI", 4096, NULL, 1, NULL);
