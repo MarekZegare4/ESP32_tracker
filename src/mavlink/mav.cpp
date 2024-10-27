@@ -180,7 +180,7 @@ void decodeTelemetryTask(void *parameters)
             }
         }
 
-        uint8_t buf[256]; // working buffer
+        uint8_t buf[512]; // working buffer
         if (Serial2.available())
         {
             int len = Serial2.read(buf, sizeof(buf));
@@ -198,7 +198,7 @@ void decodeTelemetryTask(void *parameters)
                     bluetoothInit();
                     bt_bridge_flag = true;
                 }
-                uint8_t buf2[256];
+                uint8_t buf2[512];
                 if (Serial2.availableForWrite())
                 {
                     int len2 = SerialBT.available();
@@ -226,7 +226,7 @@ void decodeTelemetryTask(void *parameters)
                     udp_bridge_flag = true;
                 }
                 int packetSize = udp.parsePacket();
-                uint8_t buf2[256];
+                uint8_t buf2[512];
                 if (packetSize)
                 {
                     int len2 = udp.read(buf2, sizeof(buf2));
@@ -253,7 +253,7 @@ void decodeTelemetryTask(void *parameters)
                     udpDeinit();
                     udp_bridge_flag = false;
                 }
-                uint8_t buf2[256];
+                uint8_t buf2[512];
                 if (Serial.available())
                 {
                     int len2 = Serial.read(buf2, sizeof(buf2));

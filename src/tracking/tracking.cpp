@@ -57,7 +57,7 @@ void trackingInitialize()
   }
   Serial.println("Connected to u-blox module!");
   myGNSS.setSPIOutput(COM_TYPE_UBX); // Set the SPI port to output UBX only (turn off NMEA noise)
-
+  myGNSS.setNavigationFrequency(10); // Set the update rate to 10Hz
   // lsm6ds3.begin_I2C();
   // bmm150.begin();
   // bmm150.setOperationMode(BMM150_POWERMODE_NORMAL);
@@ -105,6 +105,19 @@ void trackingTask(void *parameters)
       gpsData.fixType = myGNSS.getFixType();
       gpsData.satCount = myGNSS.getSIV();
     }
+    Wgs84Coord trackerPos;
+    Wgs84Coord uavPos;
+    AngleValues angles;
+    trackerPos.lat = gpsData.latitude;
+    trackerPos.lon = gpsData.longitude;
+    trackerPos.alt = gpsData.altitude;
+
+    uavPos.alt = getUavGPS()->global_lat;
+    uavPos.lon = getUavGPS()->global_lon;
+    uavPos.alt = getUavGPS()->global_alt;
+
+    angles = DistAziElev(trackerPos,uavPos);
+    st.RegWritePosEx(1, angleToServo(angles.azimuth), 2000);
     // lis3mdl.getSensor(&sensor);
     // Serial.print("Sensor: "); Serial.println(sensor.name);
     // lsm6ds3trc.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);
@@ -187,6 +200,6 @@ void trackingTask(void *parameters)
     // sDistAziElev = DistAziElev(uavPos, uavPos);
     // sCompassDegree = bmm150.getCompassDegree();
     // st.WritePosEx(1, angleToServo(sCompassDegree), 1500, 50); // To control the servo with ID 1, rotate it to position 1000 at a speed of 1500, with a start-stop acceleration of 50.
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
