@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "mag_calibration.h"
-//#include <ArduinoEigen.h>
+#include "imu_calibration.h"
+// #include <ArduinoEigen.h>
 
 // using Eigen::EigenSolver;
 // using Eigen::MatrixXd;
@@ -116,17 +116,26 @@
 // }
 
 // Correction matrices for Hard and Soft Iron calibration
-float A_1[3][3] = {
+float A_mag[3][3] = {
     {0.784, 0.0318, -0.0075},
     {0.0318, 0.7886, -0.0168},
     {-0.0075, -0.0168, 0.7407}};
 
-float b[3] = {
+float b_mag[3] = {
     -47.0339,
     36.4925,
     -38.8863};
 
-// float A_1[3][3] = {
+float A_acc[3][3] = {
+    {0.9898, -0.002, 0.0018},
+    {-0.002, 0.9945, 0.0019},
+    {0.0018, 0.0019, 0.9961}};
+
+float b_acc[3] = {
+    -0.0588,
+    0.0512,
+    0.3196};
+// float A_mag[3][3] = {
 //     {1, 0, 0},
 //     {0, 1, 0},
 //     {0, 0, 1}};
@@ -139,12 +148,21 @@ float b[3] = {
 @param y: y-axis data in uT
 @param z: z-axis data in uT
 */
-CalibratedMagData calibratedData(float x, float y, float z)
+CalibratedIMUData calibratedMagData(float x, float y, float z)
 {
-    CalibratedMagData data;
-    data.x = A_1[0][0] * x + A_1[0][1] * y + A_1[0][2] * z - b[0];
-    data.y = A_1[1][0] * x + A_1[1][1] * y + A_1[1][2] * z - b[1];
-    data.z = A_1[2][0] * x + A_1[2][1] * y + A_1[2][2] * z - b[2];
+    CalibratedIMUData data;
+    data.x = A_mag[0][0] * x + A_mag[0][1] * y + A_mag[0][2] * z - b_mag[0];
+    data.y = A_mag[1][0] * x + A_mag[1][1] * y + A_mag[1][2] * z - b_mag[1];
+    data.z = A_mag[2][0] * x + A_mag[2][1] * y + A_mag[2][2] * z - b_mag[2];
+    return data;
+}
+
+CalibratedIMUData calibratedAccData(float x, float y, float z)
+{
+    CalibratedIMUData data;
+    data.x = A_acc[0][0] * x + A_acc[0][1] * y + A_acc[0][2] * z - b_acc[0];
+    data.y = A_acc[1][0] * x + A_acc[1][1] * y + A_acc[1][2] * z - b_acc[1];
+    data.z = A_acc[2][0] * x + A_acc[2][1] * y + A_acc[2][2] * z - b_acc[2];
     return data;
 }
 
@@ -156,7 +174,7 @@ CalibratedMagData calibratedData(float x, float y, float z)
 */
 void HardIronCorrection(float x, float y, float z)
 {
-    b[0] = (x + b[0]) / 2;
-    b[1] = (y + b[1]) / 2;
-    b[2] = (z + b[2]) / 2;
+    b_mag[0] = (x + b_mag[0]) / 2;
+    b_mag[1] = (y + b_mag[1]) / 2;
+    b_mag[2] = (z + b_mag[2]) / 2;
 }

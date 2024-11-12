@@ -4,7 +4,7 @@ class correctionData {
         double b[3] = {0};
 };
 
-class CalibratedMagData {
+class CalibratedIMUData {
     public:
         float x;
         float y;
@@ -15,4 +15,4 @@ void readCalibrationData(float x, float y, float z, int i);
 void calibrate();
 void sendCalculated();
 void hardIronCorrection(float x, float y, float z);
-CalibratedMagData calibratedData(float x, float y, float z);
+CalibratedIMUData calibratedMagData(float x, float y, float z);

@@ -1,6 +1,6 @@
 ## Antenna tracker based on ESP32 microcontroller
 
-This project focuses on the development of an antenna tracker with some ground station functionalities. Developed in platformio with Arduino framework.
+This project focuses on the development of an antenna tracker with some ground station functionalities. Developed in platformio with Arduino framework. Based on [mLRS](https://github.com/olliw42/mLRS) project for MAVLink telemetry data.
 
 ### Contents of the repository
 - `src` - source code of the project
@@ -15,6 +15,9 @@ This project focuses on the development of an antenna tracker with some ground s
 ### To be implemented
 - GUI for configuration and monitoring on built-in display
 - IMU pan and tilt stabilization
+-
+-
+- More telemetry protocols
 
 ---
 

@@ -12,7 +12,7 @@
 #include "mavlink/mav.h"
 #include "tracking.h"
 #include "tracking/geoTransform/geoTransform.h"
-#include "mag_calibration/mag_calibration.h"
+#include "imu_calibration/imu_calibration.h"
 
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
 
@@ -123,10 +123,16 @@ void trackingTask(void *parameters)
     angles = DistAziElev(trackerPos, uavPos);
     gpsData.angles = angles;
 
-    sensors_event_t event;
-    lis3mdl.getEvent(&event);
-    CalibratedMagData data = calibratedData(event.magnetic.x, event.magnetic.y, event.magnetic.z);
-    Serial.print(String(data.x) + " " + String(data.y) + " " + String(data.z) + ";" + "\n");
+    sensors_event_t mag;
+    sensors_event_t accel;
+    sensors_event_t gyro;
+    sensors_event_t temp;
+
+    lis3mdl.getEvent(&mag);
+    lsm6ds3trc.getEvent(&accel, &gyro, &temp);
+    // CalibratedMagData data = calibratedData(mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
+    // Serial.print(String(data.x) + " " + String(data.y) + " " + String(data.z) + ";" + "\n");
+    Serial.print(String(accel.acceleration.x) + " " + String(accel.acceleration.y) + " " + String(accel.acceleration.z) + ";" + "\n");
 
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
