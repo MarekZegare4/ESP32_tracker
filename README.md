@@ -1,35 +1,26 @@
+## Antenna tracker based on ESP32 microcontroller
 
-## Menu structure
+This project focuses on the development of an antenna tracker with some ground station functionalities. Developed in platformio with Arduino framework.
 
-    .
-    ├── Main screen
-    ├── UAV actions
-    ├── Map
-    └── Settings
-        ├── System status (cpu, ram usage etc.)
-        ├── Language
-        │   ├── Polish
-        │   └── English
-        └── Bridge mode
-            ├── WiFi
-            │   ├── AP
-            │   └── Connect to network
-            ├── Bluetooth
-            │   └── Name
-            ├── USB
-            └── NONE
+### Contents of the repository
+- `src` - source code of the project
+- `schematic` - schematics and PCB design files
+- `matlab_scripts` - magnetometer calibration routine
 
-## Details
+### Current features
+- Tracking based on built-in GNSS receiver data and telemetry data from UAV
+- 360° continuous rotation in vertical axis
+- WiFi/BT/USB telemetry bridge
+- Implemented magnetometer with calibration routine
+### To be implemented
+- GUI for configuration and monitoring on built-in display
+- IMU pan and tilt stabilization
 
-#### Main screen
+---
 
-#### UAV status
+## Current PCB design
+![PCB](img/pcb.png)
 
-#### Map
+## Current mechanical design
+![Mechanical](img/tracker.png)
 
-#### Settings
-
-## Sources
-
-Menu framework
-- https://forum.arduino.cc/t/creating-a-menu-system/896007/2

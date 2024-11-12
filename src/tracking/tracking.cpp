@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include <SCServo.h>
 #include <Wire.h>
+#include <SPI.h>
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DS3TRC.h>
 #include <Adafruit_Sensor.h>
 #include <ESP32Servo.h>
+#include <SparkFun_u-blox_GNSS_v3.h>
+#include <WMM_Tinier.h>
 #include "gui/gui.h"
 #include "mavlink/mav.h"
 #include "tracking.h"
 #include "tracking/geoTransform/geoTransform.h"
-#include <SPI.h>
-#include <SparkFun_u-blox_GNSS_v3.h>
-#include <WMM_Tinier.h>
 #include "mag_calibration/mag_calibration.h"
 
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
