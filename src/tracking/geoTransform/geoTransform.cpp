@@ -6,6 +6,7 @@
 #define CONV_COEFF 10000000
 
 // http://www.movable-type.co.uk/scripts/latlong.html
+// https://stackoverflow.com/questions/29858543/elevation-angle-between-positions
 
 /**
  * @brief Function to convert WGS84 coordinates to cartesian coordinates
@@ -29,24 +30,22 @@ CartCoord CartTransform(Wgs84Coord &coord) {
  * @brief Function to calculate distance, azimuth and elevation between two WGS84 coordinates
  * @param c1 Wgs84Coord structure with latitude, longitude and altitude
  * @param c2 Wgs84Coord structure with latitude, longitude and altitude
- * @param coeff Coefficient used to convert latitude and longitude integer values to floats
  */
-AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2, int coeff = CONV_COEFF){
+AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
   AngleValues values;
-  int R = 6371000;
-  double dlat = radians((c2.lat - c1.lat) / coeff);
-  double dlon = radians((c2.lon - c1.lon) / coeff);
+  int R = 6371008;
+  double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
+  double dlon = radians((c2.lon - c1.lon) / CONV_COEFF);
   double a = pow(sin(dlat / 2), 2) + cos(radians(c1.lat))*cos(radians(c2.lat))*pow(sin(dlon / 2), 2);
   double d = 2 * R * atan2(sqrt(a), sqrt(1 - a));
   double azimuth = degrees(atan2(sin(dlon)*cos(radians(c2.lat)), cos(radians(c1.lat)) * sin(radians(c2.lat)) - sin(radians(c1.lat)) * cos(radians(c2.lat)) * cos(dlon)));
   if (azimuth < 0){
         azimuth += 360;
   }
-  double phi = d/R;
-  double d1 = (R + c1.alt) * cos(phi);
-  double d3 = (R + c1.alt) * sin(phi);
-  double d2 = c2.alt - c1.alt * cos(phi) + R * (1 - cos(phi));
-  double elevation = degrees(atan2(c2.alt - c1.alt*cos(phi) + R * (1 - cos(phi)), (R + c1.alt) * sin(phi)));
+  double b = R + c1.alt;
+  double c = R + c2.alt;
+  double phi = d / R;
+  double elevation = degrees(-asin(b - c * cos(phi))/(sqrt(b*b + c*c - 2 * b * c * cos(phi))));
   values.azimuth = azimuth;
   values.elevation = elevation;
   values.distance = d;

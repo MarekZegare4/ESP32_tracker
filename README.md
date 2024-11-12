@@ -1,78 +1,26 @@
+## Antenna tracker based on ESP32 microcontroller
 
+This project focuses on the development of an antenna tracker with some ground station functionalities. Developed in platformio with Arduino framework.
 
-# Work plan for (insert cool project name here)
+### Contents of the repository
+- `src` - source code of the project
+- `schematic` - schematics and PCB design files
+- `matlab_scripts` - magnetometer calibration routine
 
-- [Things to do](#things-to-do)
-    - [Hardware](#hardware)
-    - [Software](#software)
-- [Menu structure](#menu-structure)
+### Current features
+- Tracking based on built-in GNSS receiver data and telemetry data from UAV
+- 360° continuous rotation in vertical axis
+- WiFi/BT/USB telemetry bridge
+- Implemented magnetometer with calibration routine
+### To be implemented
+- GUI for configuration and monitoring on built-in display
+- IMU pan and tilt stabilization
 
-## Things to do
+---
 
-### Hardware
+## Current PCB design
+![PCB](img/pcb.png)
 
-- [ ] Finish designign top part
-    - [x] Wio e5 mini case
-    - [x] Main axis connection
-    - [x] RX holder
-    - [x] Pan servo mount
-- [ ] Test pan and tilt movement
+## Current mechanical design
+![Mechanical](img/tracker.png)
 
-### Software
-
-- [ ] Implement menu system
-    - [x] Framwork
-- [ ] Populate menus:
-    - [ ] [Main screen](#main-screen)
-    - [ ] [UAV status](#uav-status)
-    - [ ] [Map](#map)
-    - [ ] [Settings](#settings)
-- [ ] Figure out catchy name for the project
-
-## Menu structure
-
-    .
-    ├── Main screen
-    ├── UAV actions
-    ├── Map
-    └── Settings
-        ├── System status (cpu, ram usage etc.)
-        ├── Language
-        │   ├── Polish
-        │   └── English
-        └── Bridge mode
-            ├── WiFi
-            │   ├── AP
-            │   └── Connect to network
-            ├── Bluetooth
-            │   └── Name
-            ├── USB
-            └── NONE
-
-## Details
-
-#### Main screen
-
-#### UAV status
-
-#### Map
-
-#### Settings
-
-## Work tracker
-
-| Date   | Things done              |
-|--------|--------------------------|
-|2.09.24 |work plan, menu framwework|
-|3.09.24 |3d model update, menu     |
-|4.09.24 |--------------------------|
-|5.09.24 |wio e5 case               |
-|6.09.24 |rx mount, pan - tilt assembly    |
-|7.09.24 |tilt servo mount          |
-|8.09.24 |pan-tilt assembly tweaks  |
-|9.09.24 |tilt axel                 |
-
-## Sources
-
-Menu framework
-- https://forum.arduino.cc/t/creating-a-menu-system/896007/2
