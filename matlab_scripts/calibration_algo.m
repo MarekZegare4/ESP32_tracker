@@ -44,6 +44,7 @@ M_1 = inv(M);
 b = -M_1 * n;
 
 r = mean([abs(max(x) - min(x))/2 abs(max(y)-min(y))/2 abs(max(z) - min(z))/2]);
+r = 9.81;
 
 A_1 = real(r / (sqrt(n' * (M_1 * n) - d)) * sqrtm(M));
 

@@ -20,17 +20,18 @@ p.ZDataSource = 'z';
 
 linkdata on
 
-for i = 1:500
+for i = 1:1000
     data = str2num(readline(serial))
     x = [x, data(1)];
     y = [y, data(2)];
     z = [z, data(3)];
     refreshdata
     drawnow
+    %pause
 end
 
-save("x.mat", "x");
-save("y.mat", "y");
-save("z.mat", "z");
+%save("x.mat", "x");
+%save("y.mat", "y");
+%save("z.mat", "z");
 
 clear serial
