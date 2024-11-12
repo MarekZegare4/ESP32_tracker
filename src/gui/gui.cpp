@@ -279,7 +279,14 @@ void mainScreen()
 	text.setTextColor(BLACK);
 	text.setCursor(5, 10);
 	// text.println("Mag heading: " + String(getCompassDegree()));
-	text.println("UAV");
+	if (getConnectionStatus())
+	{
+		text.println("UAV connected");
+	}
+	else
+	{
+		text.println("UAV disconnected");
+	}
 	text.setCursor(5, 20);
 	text.println("GPS: " + String(getUavGPS()->global_lat) + " " + String(getUavGPS()->global_lon) + " " + String(getUavGPS()->global_alt));
 	text.setCursor(5, 40);
@@ -292,6 +299,12 @@ void mainScreen()
 	text.println("SYS TEXT");
 	text.setCursor(5, 90);
 	text.println(String(getUavSysText()->text));
+	text.setCursor(5, 110);
+	text.println("Distance: " + String(getTrackerGPS().angles.distance));
+	text.setCursor(5, 120);
+	text.println("Azimuth: " + String(getTrackerGPS().angles.azimuth));
+	text.setCursor(5, 130);
+	text.println("Elevation: " + String(getTrackerGPS().angles.elevation));
 	display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 

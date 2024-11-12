@@ -6,7 +6,8 @@
 #include "mavlink/mav.h"
 #include "tracking/tracking.h"
 
-// Pomoce: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
+// Some info: https://discuss.ardupilot.org/t/mavlink-and-arduino-step-by-step/25566
+// Bridge part courtesy of @olliw42 https://github.com/olliw42/mLRS/tree/main/esp
 
 #define LRS_RX 33
 #define LRS_TX 32
@@ -15,10 +16,10 @@
 
 // WiFi settings
 String ssid = "mLRS UDP"; // Wifi name
-String password = "";     // "thisisgreat"; // WiFi password, "" makes it an open AP
+String password = "";     
 
-IPAddress ip(192, 168, 4, 55);                    // connect to this IP // MissionPlanner default is 127.0.0.1, so enter
-IPAddress ip_udp(ip[0], ip[1], ip[2], ip[3] + 1); // usually the client/MissionPlanner gets assigned +1
+IPAddress ip(192, 168, 4, 55);                    
+IPAddress ip_udp(ip[0], ip[1], ip[2], ip[3] + 1); 
 IPAddress ip_gateway(0, 0, 0, 0);
 IPAddress netmask(255, 255, 255, 0);
 
@@ -164,23 +165,36 @@ void decodeTelemetryTask(void *parameters)
     mavlink_status_t status;
     mavlink_message_t msg;
     int chan = MAVLINK_COMM_0;
-    uint16_t HBPeriod = 1000;
-    uint16_t currentHBTime = 0;
-    uint16_t lastHBTime = 0;
+    uint64_t HBPeriod = 1e6; // in microseconds
+    uint64_t currentTime = 0;
+    uint64_t lastHBTime = 0;
+    uint64_t connectionTimeout = 3e6; // in microseconds
+    uint64_t currentConnectionTime = 0;
+    uint64_t lastConnectionTime = 0;
+
     for (;;)
     {
-        // Send heartbeat a
-        currentHBTime = millis();
-        if (currentHBTime - lastHBTime >= HBPeriod)
+        // Check connection and send heartbeat 
+        currentTime = esp_timer_get_time();
+
+        if (currentTime - lastConnectionTime > connectionTimeout)
+        {
+            isConnected = false;
+        }
+        else
+        {
+            isConnected = true;
+        }
+        if (currentTime - lastHBTime >= HBPeriod)
         {
             if (Serial2.availableForWrite())
             {
                 sendHeartbeat();
-                lastHBTime = currentHBTime;
+                lastHBTime = currentTime;
             }
         }
 
-        uint8_t buf[512]; // working buffer
+        uint8_t buf[256]; // working buffer
         if (Serial2.available())
         {
             int len = Serial2.read(buf, sizeof(buf));
@@ -198,7 +212,7 @@ void decodeTelemetryTask(void *parameters)
                     bluetoothInit();
                     bt_bridge_flag = true;
                 }
-                uint8_t buf2[512];
+                uint8_t buf2[256];
                 if (Serial2.availableForWrite())
                 {
                     int len2 = SerialBT.available();
@@ -226,7 +240,7 @@ void decodeTelemetryTask(void *parameters)
                     udp_bridge_flag = true;
                 }
                 int packetSize = udp.parsePacket();
-                uint8_t buf2[512];
+                uint8_t buf2[256];
                 if (packetSize)
                 {
                     int len2 = udp.read(buf2, sizeof(buf2));
@@ -253,7 +267,7 @@ void decodeTelemetryTask(void *parameters)
                     udpDeinit();
                     udp_bridge_flag = false;
                 }
-                uint8_t buf2[512];
+                uint8_t buf2[256];
                 if (Serial.available())
                 {
                     int len2 = Serial.read(buf2, sizeof(buf2));
@@ -273,11 +287,13 @@ void decodeTelemetryTask(void *parameters)
                 if (mavlink_parse_char(chan, byte, &msg, &status))
                 {
                     // Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+
                     switch (msg.msgid)
                     {
                     case MAVLINK_MSG_ID_HEARTBEAT: // ID for HEARTBEAT
                     {
                         // Get all fields in payload (into heartbeat)
+                        lastConnectionTime = esp_timer_get_time();
                         mavlink_heartbeat_t heartbeat;
                         mavlink_msg_heartbeat_decode(&msg, &heartbeat);
                         break;
@@ -290,7 +306,7 @@ void decodeTelemetryTask(void *parameters)
                         // Serial.printf("Severity: %d, text: %s\n", sys_status.severity, sys_status.text);
                         sUavSysText.severity = sys_status.severity;
                         strcpy(sUavSysText.text, sys_status.text);
-                        Serial.println(sUavSysText.text);
+                        //Serial.println(sUavSysText.text);
                         break;
                     }
                     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT

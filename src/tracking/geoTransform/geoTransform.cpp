@@ -30,13 +30,12 @@ CartCoord CartTransform(Wgs84Coord &coord) {
  * @brief Function to calculate distance, azimuth and elevation between two WGS84 coordinates
  * @param c1 Wgs84Coord structure with latitude, longitude and altitude
  * @param c2 Wgs84Coord structure with latitude, longitude and altitude
- * @param coeff Coefficient used to convert latitude and longitude integer values to floats
  */
-AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2, int coeff = CONV_COEFF){
+AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
   AngleValues values;
-  int R = 6371000;
-  double dlat = radians((c2.lat - c1.lat) / coeff);
-  double dlon = radians((c2.lon - c1.lon) / coeff);
+  int R = 6371008;
+  double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
+  double dlon = radians((c2.lon - c1.lon) / CONV_COEFF);
   double a = pow(sin(dlat / 2), 2) + cos(radians(c1.lat))*cos(radians(c2.lat))*pow(sin(dlon / 2), 2);
   double d = 2 * R * atan2(sqrt(a), sqrt(1 - a));
   double azimuth = degrees(atan2(sin(dlon)*cos(radians(c2.lat)), cos(radians(c1.lat)) * sin(radians(c2.lat)) - sin(radians(c1.lat)) * cos(radians(c2.lat)) * cos(dlon)));

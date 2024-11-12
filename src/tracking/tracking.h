@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <SCServo.h>
+#include "geoTransform/geoTransform.h"
 
 void trackingTask(void * parameters);
 void trackingInitialize();
@@ -14,6 +14,8 @@ class TrackerDataGPS {
         int32_t altitude;
         byte fixType;
         int8_t satCount;
+        AngleValues angles;
+
 };
 
 TrackerDataGPS getTrackerGPS();
