@@ -116,6 +116,24 @@
 // }
 
 // Correction matrices for Hard and Soft Iron calibration
+/*
+@brief Outputs the tilt compensated heading
+@param mag_x: x-axis magnetometer data 
+@param mag_y: y-axis magnetometer data
+@param mag_z: z-axis magnetometer data
+@param pitch: pitch angle in radians
+@param roll: roll angle in radians
+*/
+float tiltCompensatedHeading(float mag_x, float mag_y, float mag_z, float pitch, float roll)
+{   
+    pitch = radians(pitch);
+    roll = radians(roll);
+    float xh = mag_x * cos(pitch) + mag_z * sin(pitch);
+    float yh = mag_x * sin(roll) * sin(pitch) + mag_y * cos(roll) - mag_z * sin(roll) * cos(pitch);
+    float heading = degrees(atan2(yh, xh));
+    return heading;
+}
+
 float A_mag[3][3] = {
     {0.784, 0.0318, -0.0075},
     {0.0318, 0.7886, -0.0168},
@@ -165,7 +183,6 @@ CalibratedIMUData calibratedAccData(float x, float y, float z)
     data.z = A_acc[2][0] * x + A_acc[2][1] * y + A_acc[2][2] * z - b_acc[2];
     return data;
 }
-
 /*
 @brief Function for updating the Hard Iron correction matrix
 @param x: x-axis data in uT

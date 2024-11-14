@@ -16,3 +16,5 @@ void calibrate();
 void sendCalculated();
 void hardIronCorrection(float x, float y, float z);
 CalibratedIMUData calibratedMagData(float x, float y, float z);
+CalibratedIMUData calibratedAccData(float x, float y, float z);
+float tiltCompensatedHeading(float x, float y, float z, float pitch, float roll);

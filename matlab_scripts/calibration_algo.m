@@ -76,3 +76,4 @@ scatter3(XYZ_n(1,:), XYZ_n(2,:), XYZ_n(3,:), "filled");
 surf(xs, ys, zs, 'FaceAlpha', 0.3, 'EdgeColor', 'none');
 axis equal
 hold off
+legend("Raw data", "Raw data with offset", "Corrected data");
