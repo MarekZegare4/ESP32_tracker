@@ -29,7 +29,8 @@ class UavSysText {
 enum eBridgeType {
   UDP,
   BLUETOOTH,
-  USB
+  USB,
+  NO_BRIDGE
 };
 
 bool getConnectionStatus();

@@ -15,7 +15,6 @@
 #include "tracking/geoTransform/geoTransform.h"
 #include "imu_calibration/imu_calibration.h"
 #include "kalman_filter/kalman.h"
-
 // https://www.waveshare.com/wiki/ST3020_Servo#Overview
 
 #define SERVO_RX 16
@@ -39,6 +38,8 @@ WMM_Tinier declination;
 TrackerDataGPS gpsData;
 AngleValues sDistAziElev;
 float sCompassDegree;
+Wgs84Coord uavCoord;
+Wgs84Coord trackerCoord;
 
 // Sensor fusion
 SF fusion;
@@ -47,9 +48,18 @@ float pitch, roll, yaw;
 float deltat;
 float heading;
 
-float getCompassDegree()
+CalibratedIMUData mag_data;
+CalibratedIMUData accel_data;
+
+bool ready_to_track = false;
+
+/*
+@brief Corrects the angle to work in the current configuration
+@param angle: wanted angle
+*/
+int servoAngle(int angle)
 {
-  return sCompassDegree;
+  return map(angle, 0, 90, 14, 170);
 }
 
 void trackingInitialize()
@@ -57,13 +67,12 @@ void trackingInitialize()
   Serial1.begin(1000000, SERIAL_8N1, SERVO_RX, SERVO_TX);
   declination.begin();
   st.pSerial = &Serial1;
+  // st.CalibrationOfs(1);
+  st.WritePosEx(1, 0, 1000, 100);
   ESP32PWM::allocateTimer(0);
-  ESP32PWM::allocateTimer(1);
-  ESP32PWM::allocateTimer(2);
-  ESP32PWM::allocateTimer(3);
   servo.setPeriodHertz(50);                 // Standard 50hz servo
   servo.attach(SERVO_TILT_PIN, 1000, 2000); // attaches the servo on pin 4 to the servo object
-  servo.write(0);
+  servo.write(servoAngle(0));
   lis3mdl.begin_I2C();
   lis3mdl.setRange(LIS3MDL_RANGE_4_GAUSS);
   lis3mdl.setDataRate(LIS3MDL_DATARATE_155_HZ);
@@ -77,24 +86,36 @@ void trackingInitialize()
   }
   myGNSS.setSPIOutput(COM_TYPE_UBX); // Set the SPI port to output UBX only (turn off NMEA noise)
   myGNSS.setNavigationFrequency(5);  // Set the update rate to 5Hz
-  // myGNSS.newCfgValset(VAL_LAYER_RAM); // Disable NMEA GxGSV messages
-  // myGNSS.addCfgValset(UBLOX_CFG_GNSS_, 1);
-  // myGNSS.sendCfgValset();
+}
+
+void sendRawMagData()
+{
+  sensors_event_t mag;
+  lis3mdl.getEvent(&mag);
+  Serial.print(String(mag.magnetic.x) + " " + String(mag.magnetic.y) + " " + String(mag.magnetic.z) + "\n");
 }
 
 int angleToServo(int angle)
 {
-  return  360 / 4096 * angle;
+  return map(angle, 0, 360, 0, 4096);
+}
+
+int servoToAngle(int servo)
+{
+  return map(servo, 0, 4096, 0, 360);
+}
+
+void moveServoByAngle(int angle, int speed, int acc){
+  int current_angle = servoToAngle(st.ReadPos(1));
+  st.WritePosEx(1, angleToServo(current_angle + angle) % 4096, speed, acc);
 }
 
 void servoDemo()
 {
-  st.WritePosEx(1, 2048, 1500);
-  servo.write(45);
-  delay(1000);
-  st.WritePosEx(1, -2048, 1500);
-  servo.write(0);
-  delay(1000);
+  st.WritePosEx(1, 0, 1000, 100);
+  delay(10000);
+  st.WritePosEx(1, 2048, 1000, 100);
+  delay(10000);
 }
 
 int readCurrent()
@@ -107,9 +128,16 @@ TrackerDataGPS getTrackerGPS()
   return gpsData;
 }
 
+float readHeading()
+{
+  return heading;
+}
+
 sensor_t sensor;
 float x, y, z;
 int i = 0;
+bool date_flag = false;
+float mag_declination = 0;
 
 void trackingTask(void *parameters)
 {
@@ -124,55 +152,91 @@ void trackingTask(void *parameters)
     lis3mdl.getEvent(&mag);
     lsm6ds3trc.getEvent(&accel, &gyro, &temp);
 
-    CalibratedIMUData mag_data = calibratedMagData(mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
-    CalibratedIMUData accel_data = calibratedAccData(accel.acceleration.x, accel.acceleration.y, accel.acceleration.z);
-    mx = mag_data.x;
-    my = mag_data.y;
-    mz = mag_data.z;
-    ax = accel_data.x;
-    ay = accel_data.y;
-    az = accel_data.z;
-    gx = gyro.gyro.x;
-    gy = gyro.gyro.y;
-    gz = gyro.gyro.z;
-    deltat = fusion.deltatUpdate();
-    fusion.MadgwickUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);
+    mag_data = calibratedMagData(mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
+    accel_data = calibratedAccData(accel.acceleration.x, accel.acceleration.y, accel.acceleration.z);
+    // mx = mag_data.x;
+    // my = mag_data.y;
+    // mz = mag_data.z;
+    // ax = accel_data.x;
+    // ay = accel_data.y;
+    // az = accel_data.z;
+    // gx = gyro.gyro.x;
+    // gy = gyro.gyro.y;
+    // gz = gyro.gyro.z;
+    // deltat = fusion.deltatUpdate();
+    // fusion.MadgwickUpdate(gx, gy, gz, ax, ay, az, mx, my, mz, deltat);
 
-    pitch = pitchKalman(fusion.getPitch());
-    roll = rollKalman(fusion.getRoll());
-    heading = headingKalman(tiltCompensatedHeading(mag_data.x, mag_data.y, mag_data.z, pitch, roll));
+    // pitch = pitchKalman(fusion.getPitch());
+    // roll = rollKalman(fusion.getRoll());
 
     // Read data from GNSS module
     gpsData.latitude = myGNSS.getLatitude();
     gpsData.longitude = myGNSS.getLongitude();
-    gpsData.altitude = myGNSS.getAltitudeMSL(); // Altitude above Mean Sea Level
+    gpsData.altitude = myGNSS.getAltitudeMSL();
     gpsData.fixType = myGNSS.getFixType();
     gpsData.satCount = myGNSS.getSIV();
 
-    // Wgs84Coord trackerPos;
-    // Wgs84Coord uavPos;
-    // AngleValues angles;
-    // // Update the tracker and UAV positions
-    // trackerPos.lat = gpsData.latitude;
-    // trackerPos.lon = gpsData.longitude;
-    // trackerPos.alt = gpsData.altitude;
+    gpsData.day = myGNSS.getDay();
+    gpsData.month = myGNSS.getMonth();
+    gpsData.year = myGNSS.getYear();
 
-    // uavPos.alt = getUavGPS()->global_lat;
-    // uavPos.lon = getUavGPS()->global_lon;
-    // uavPos.alt = getUavGPS()->global_alt;
+    trackerCoord.lat = gpsData.latitude;
+    trackerCoord.lon = gpsData.longitude;
+    trackerCoord.alt = gpsData.altitude;
 
-    // // Calculate the magnetic declination
-    // float dec = declination.magneticDeclination(trackerPos.lat, trackerPos.lon, myGNSS.getYear(), myGNSS.getMonth(), myGNSS.getDay());
+    uavCoord.lat = getUavGPS()->global_lat;
+    uavCoord.lon = getUavGPS()->global_lon;
+    uavCoord.alt = getUavGPS()->global_alt;
 
-    // angles = DistAziElev(trackerPos, uavPos);
-    // gpsData.angles = angles;
-
-    // CalibratedMagData data = calibratedData(mag.magnetic.x, mag.magnetic.y, mag.magnetic.z);
-    // Serial.print(String(data.x) + " " + String(data.y) + " " + String(data.z) + ";" + "\n");
-    // Serial.print(String(accel.acceleration.x) + " " + String(accel.acceleration.y) + " " + String(accel.acceleration.z) + ";" + "\n");
-    // CalibratedIMUData data = calibratedAccData(accel.acceleration.x, accel.acceleration.y, accel.acceleration.z);
-    // Serial.print(String(data.x) + " " + String(data.y) + " " + String(data.z) + ";" + "\n");
-
+    if (gpsData.fixType >= 3 && !date_flag)
+    {
+      mag_declination = declination.magneticDeclination(gpsData.latitude, gpsData.longitude, myGNSS.getYear() % 100, myGNSS.getMonth(), myGNSS.getDay());
+      date_flag = true;
+    }
+  
+    // heading = convertHeading(headingKalman(tiltCompensatedHeading(mag_data.x, mag_data.y, mag_data.z, pitch, roll)), -90 + declination.magneticDeclination(gpsData.latitude, gpsData.longitude, myGNSS.getYear() % 100, myGNSS.getMonth(), myGNSS.getDay()));
+    if (gpsData.fixType >= 3)
+    {
+      heading = convertHeading(headingKalman(atan2(mag_data.y, mag_data.x) * 180 / PI), -90 + declination.magneticDeclination(gpsData.latitude, gpsData.longitude, myGNSS.getYear() % 100, myGNSS.getMonth(), myGNSS.getDay())); 
+      if(i <= 200){
+        i++;
+      }
+      if (i >= 200 && !ready_to_track)
+      {
+        moveServoByAngle((int)(abs(heading - 180)) % 360, 1000, 100);
+        st.CalibrationOfs(1);
+        delay(2000);
+        ready_to_track = true;
+      }
+      if (ready_to_track && getConnectionStatus())
+      {
+        sDistAziElev = distAziElev(trackerCoord, uavCoord);
+        st.WritePosEx(1, angleToServo(sDistAziElev.azimuth), 1000, 100); 
+      }
+    }
+    else
+    {
+      heading = convertHeading(headingKalman(atan2(mag_data.y, mag_data.x) * 180 / PI), -90 );
+      //Serial.println("______________________________");
+      // Serial.println(servoToAngle(st.ReadPos(1)));
+      // //Serial.println(servoToAngle(servoToAngle(st.ReadPos(1)) + heading));
+      // Serial.println((int)(abs(heading - 180)) % 360);
+      //Serial.println(heading);
+      // Serial.println(i);
+      // if(i <= 100){
+      //   i++;
+      // }
+      // if (i >= 100 && !ready_to_track)
+      // {
+      //   //st.WritePosEx(1, angleToServo(servoToAngle(st.ReadPos(1)) + heading), 1000, 100);
+      //   moveServoByAngle((int)(abs(heading - 180)) % 360, 1000, 100);
+      //   delay(5000);
+      //   st.CalibrationOfs(1);
+      //   delay(1000);
+      //   ready_to_track = true;
+      // }
+      // heading = convertHeading(headingKalman(tiltCompensatedHeading(mag_data.x, mag_data.y, mag_data.z, pitch, roll)), -90);
+    }
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }

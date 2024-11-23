@@ -19,6 +19,7 @@
 
 bool button_flag = false;
 bool settings_flag = false;
+bool connection_flag = false;
 
 eButton button = NONE;
 unsigned long lastButtonPress;
@@ -279,7 +280,7 @@ void mainScreen()
 	text.setTextColor(BLACK);
 	text.setCursor(5, 10);
 	// text.println("Mag heading: " + String(getCompassDegree()));
-	if (getConnectionStatus())
+	if (connection_flag)
 	{
 		text.println("UAV connected");
 	}
@@ -305,6 +306,8 @@ void mainScreen()
 	text.println("Azimuth: " + String(getTrackerGPS().angles.azimuth));
 	text.setCursor(5, 130);
 	text.println("Elevation: " + String(getTrackerGPS().angles.elevation));
+	text.setCursor(5, 150);
+	text.println("Heading: " + String(readHeading()));
 	display.drawBitmap(0, 0, text.getBuffer(), text.width(), text.height(), WHITE, BLACK);
 }
 
@@ -396,6 +399,8 @@ void guiTask(void *parameters)
 {
 	for (;;)
 	{
+		connection_flag = getConnectionStatus();
+		
 		if (button != NONE)
 		{
 			display.clearDisplay();

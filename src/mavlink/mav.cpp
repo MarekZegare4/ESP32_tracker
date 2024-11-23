@@ -16,15 +16,15 @@
 
 // WiFi settings
 String ssid = "mLRS UDP"; // Wifi name
-String password = "";     
+String password = "";
 
-IPAddress ip(192, 168, 4, 55);                    
-IPAddress ip_udp(ip[0], ip[1], ip[2], ip[3] + 1); 
+IPAddress ip(192, 168, 4, 55);
+IPAddress ip_udp(ip[0], ip[1], ip[2], ip[3] + 1);
 IPAddress ip_gateway(0, 0, 0, 0);
 IPAddress netmask(255, 255, 255, 0);
 
 int port_tcp = 5760;  // connect to this port per TCP // MissionPlanner default is 5760
-int port_udp = 14550; // connect to this port per UDP // MissionPlanner default is 14550
+int port_udp = 14600; // connect to this port per UDP // MissionPlanner default is 14550
 int wifi_channel = 6; // WiFi channel, 1-13
 
 BluetoothSerial SerialBT;
@@ -35,7 +35,7 @@ UavDataGPS sUavDataGPS;
 UavDataAttitude sUavDataAttitude;
 UavSysText sUavSysText;
 
-eBridgeType bridgeType = BLUETOOTH;
+eBridgeType bridgeType = NO_BRIDGE;
 
 bool bt_bridge_flag = false;
 bool udp_bridge_flag = false;
@@ -174,7 +174,7 @@ void decodeTelemetryTask(void *parameters)
 
     for (;;)
     {
-        // Check connection and send heartbeat 
+        // Check connection and send heartbeat
         currentTime = esp_timer_get_time();
 
         if (currentTime - lastConnectionTime > connectionTimeout)
@@ -286,7 +286,7 @@ void decodeTelemetryTask(void *parameters)
                 uint8_t byte = buf[i];
                 if (mavlink_parse_char(chan, byte, &msg, &status))
                 {
-                    // Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+                    Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
 
                     switch (msg.msgid)
                     {
@@ -296,7 +296,7 @@ void decodeTelemetryTask(void *parameters)
                         lastConnectionTime = esp_timer_get_time();
                         mavlink_heartbeat_t heartbeat;
                         mavlink_msg_heartbeat_decode(&msg, &heartbeat);
-                        break;
+                        break;   
                     }
                     case MAVLINK_MSG_ID_STATUSTEXT: // ID for SYS_STATUS
                     {
@@ -306,7 +306,7 @@ void decodeTelemetryTask(void *parameters)
                         // Serial.printf("Severity: %d, text: %s\n", sys_status.severity, sys_status.text);
                         sUavSysText.severity = sys_status.severity;
                         strcpy(sUavSysText.text, sys_status.text);
-                        //Serial.println(sUavSysText.text);
+                        // Serial.println(sUavSysText.text);
                         break;
                     }
                     case MAVLINK_MSG_ID_GLOBAL_POSITION_INT: // ID for GLOBAL_POSITION_INT
@@ -317,14 +317,16 @@ void decodeTelemetryTask(void *parameters)
                         sUavDataGPS.global_lat = global_position.lat;
                         sUavDataGPS.global_lon = global_position.lon;
                         sUavDataGPS.global_alt = global_position.alt;
+                        break;
                     }
-                    break;
+
                     case MAVLINK_MSG_ID_GPS_INPUT: // ID for GPS_INPUT
                     {
                         // Get just one field from payload
                         mavlink_gps_input_t gps_input;
+                        break;
                     }
-                    break;
+
                     case MAVLINK_MSG_ID_ATTITUDE: // ID for ATTITUDE
                     {
                         // Get all fields in payload (into attitude)
@@ -333,8 +335,9 @@ void decodeTelemetryTask(void *parameters)
                         sUavDataAttitude.pitch = attitude.pitch;
                         sUavDataAttitude.roll = attitude.roll;
                         sUavDataAttitude.yaw = attitude.yaw;
+                        break;
                     }
-                    break;
+
                     default:
                         break;
                     }

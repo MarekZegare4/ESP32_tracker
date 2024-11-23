@@ -3,9 +3,9 @@
 
 void trackingTask(void * parameters);
 void trackingInitialize();
-float getCompassDegree();
 int readCurrent();
 void servoDemo();
+float readHeading();
 
 class TrackerDataGPS {
     public:
@@ -14,8 +14,10 @@ class TrackerDataGPS {
         int32_t altitude;
         byte fixType;
         int8_t satCount;
+        uint8_t day;
+        uint8_t month;
+        uint16_t year;
         AngleValues angles;
-
 };
 
 TrackerDataGPS getTrackerGPS();

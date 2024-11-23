@@ -12,7 +12,7 @@
  * @brief Function to convert WGS84 coordinates to cartesian coordinates
  * @param coord Wgs84Coord structure with latitude, longitude and altitude
  */
-CartCoord CartTransform(Wgs84Coord &coord) {
+CartCoord cartTransform(Wgs84Coord &coord) {
   CartCoord transform;
   float lat_rad = radians(coord.lat / CONV_COEFF);
   float lon_rad = radians(coord.alt / CONV_COEFF);
@@ -31,7 +31,7 @@ CartCoord CartTransform(Wgs84Coord &coord) {
  * @param c1 Wgs84Coord structure with latitude, longitude and altitude
  * @param c2 Wgs84Coord structure with latitude, longitude and altitude
  */
-AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
+AngleValues distAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
   AngleValues values;
   int R = 6371008;
   double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
@@ -50,4 +50,34 @@ AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
   values.elevation = elevation;
   values.distance = d;
   return values;
+}
+
+/**
+ * @brief Function to convert decimal degrees to degrees, minutes, and seconds
+ * @param decimalDegrees The coordinate in decimal degrees
+ * @return A structure containing degrees, minutes, and seconds
+ */
+DMSCoord decimalToDMS(double decimalDegrees) {
+  DMSCoord dms;
+  dms.degrees = (int)decimalDegrees;
+  double fractional = fabs(decimalDegrees - dms.degrees);
+  dms.minutes = (int)(fractional * 60);
+  dms.seconds = (fractional * 60 - dms.minutes) * 60;
+  return dms;
+}
+
+/**
+ * @brief Function to convert compass heading from -180 to 180 degrees to 0 to 360 degrees and rotate by a given angle
+ * @param heading The compass heading in degrees from -180 to 180
+ * @param rotationAngle The angle to rotate the heading by, in degrees
+ * @return The compass heading in degrees from 0 to 360, rotated by the given angle
+ */
+double convertHeading(double heading, double rotationAngle) {
+  double newHeading = heading + rotationAngle;
+  if (newHeading < 0) {
+    newHeading += 360;
+  } else if (newHeading >= 360) {
+    newHeading -= 360;
+  }
+  return newHeading;
 }

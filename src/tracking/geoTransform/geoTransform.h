@@ -13,6 +13,14 @@ class CartCoord {
       double y;
       double z;
 };
+
+class DMSCoord {
+  public:
+      int degrees;
+      int minutes;
+      double seconds;
+};
+
 class AngleValues {
   public:
       float azimuth;
@@ -20,5 +28,7 @@ class AngleValues {
       float distance;
 };
 
-CartCoord CartTransform(Wgs84Coord &coord);
-AngleValues DistAziElev(Wgs84Coord &c1, Wgs84Coord &c2);
+CartCoord cartTransform(Wgs84Coord &coord);
+AngleValues distAziElev(Wgs84Coord &c1, Wgs84Coord &c2);
+DMSCoord decimalToDMS(double decimalDegrees);
+double convertHeading(double heading, double rotationAngle);
