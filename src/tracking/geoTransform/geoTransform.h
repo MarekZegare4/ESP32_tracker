@@ -23,9 +23,9 @@ class DMSCoord {
 
 class AngleValues {
   public:
-      float azimuth;
-      float elevation;
-      float distance;
+      double azimuth;
+      double elevation;
+      double distance;
 };
 
 CartCoord cartTransform(Wgs84Coord &coord);

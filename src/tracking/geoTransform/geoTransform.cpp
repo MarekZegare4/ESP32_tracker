@@ -3,7 +3,7 @@
 #include <math.h>
 #include "geoTransform.h"
 
-#define CONV_COEFF 10000000
+#define CONV_COEFF 10000000.0
 
 // http://www.movable-type.co.uk/scripts/latlong.html
 // https://stackoverflow.com/questions/29858543/elevation-angle-between-positions
@@ -32,20 +32,27 @@ CartCoord cartTransform(Wgs84Coord &coord) {
  * @param c2 Wgs84Coord structure with latitude, longitude and altitude
  */
 AngleValues distAziElev(Wgs84Coord &c1, Wgs84Coord &c2){
+  double c1_lat = c1.lat / CONV_COEFF;
+  double c1_lon = c1.lon / CONV_COEFF;
+  double c1_alt = c1.alt / 1000.0;
+  double c2_lat = c2.lat / CONV_COEFF;
+  double c2_lon = c2.lon / CONV_COEFF;
+  double c2_alt = c2.alt / 1000.0;
+  
   AngleValues values;
-  int R = 6371008;
-  double dlat = radians((c2.lat - c1.lat) / CONV_COEFF);
-  double dlon = radians((c2.lon - c1.lon) / CONV_COEFF);
-  double a = pow(sin(dlat / 2), 2) + cos(radians(c1.lat))*cos(radians(c2.lat))*pow(sin(dlon / 2), 2);
+  double R = 6371008;
+  double dlat = radians(c2_lat - c1_lat);
+  double dlon = radians(c2_lon - c1_lon);
+  double a = pow(sin(dlat / 2), 2) + cos(radians(c1_lat))*cos(radians(c2_lat))*pow(sin(dlon / 2), 2);
   double d = 2 * R * atan2(sqrt(a), sqrt(1 - a));
-  double azimuth = degrees(atan2(sin(dlon)*cos(radians(c2.lat)), cos(radians(c1.lat)) * sin(radians(c2.lat)) - sin(radians(c1.lat)) * cos(radians(c2.lat)) * cos(dlon)));
+  double azimuth = degrees(atan2(sin(dlon)*cos(radians(c2_lat)), cos(radians(c1_lat)) * sin(radians(c2_lat)) - sin(radians(c1_lat)) * cos(radians(c2_lat)) * cos(dlon)));
   if (azimuth < 0){
         azimuth += 360;
   }
-  double b = R + c1.alt;
-  double c = R + c2.alt;
+  double b = R + c1_alt;
+  double c = R + c2_alt;
   double phi = d / R;
-  double elevation = degrees(-asin(b - c * cos(phi))/(sqrt(b*b + c*c - 2 * b * c * cos(phi))));
+  double elevation = degrees(-asin((a - b * cos(phi))/(sqrt(pow(a, 2) + pow(b, 2) - 2 * a * b * cos(phi)))));
   values.azimuth = azimuth;
   values.elevation = elevation;
   values.distance = d;

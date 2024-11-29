@@ -35,7 +35,7 @@ UavDataGPS sUavDataGPS;
 UavDataAttitude sUavDataAttitude;
 UavSysText sUavSysText;
 
-eBridgeType bridgeType = NO_BRIDGE;
+eBridgeType bridgeType = BLUETOOTH;
 
 bool bt_bridge_flag = false;
 bool udp_bridge_flag = false;
@@ -121,12 +121,12 @@ void sendHeartbeat()
 {
     // Heartbeat
     uint8_t system_id = 200;
-    uint8_t component_id = MAV_COMP_ID_MISSIONPLANNER;
+    uint8_t component_id = MAV_COMP_ID_PERIPHERAL;
     mavlink_message_t msg;
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     mavlink_msg_heartbeat_pack(system_id, component_id, &msg, MAV_TYPE_GCS, MAV_AUTOPILOT_INVALID, MAV_MODE_PREFLIGHT, 0, MAV_STATE_ACTIVE);
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-    SerialBT.write(buf, len);
+    Serial2.write(buf, len);
 }
 
 /**
@@ -184,6 +184,10 @@ void decodeTelemetryTask(void *parameters)
         else
         {
             isConnected = true;
+            // uint8_t buf[256];
+            // mavlink_msg_request_data_stream_pack(1, 1, &msg, 1, 1, MAV_DATA_STREAM_POSITION, 5, 1);
+            // int len = mavlink_msg_to_send_buffer(buf, &msg);
+            // Serial2.write(buf, len);
         }
         if (currentTime - lastHBTime >= HBPeriod)
         {
@@ -286,7 +290,7 @@ void decodeTelemetryTask(void *parameters)
                 uint8_t byte = buf[i];
                 if (mavlink_parse_char(chan, byte, &msg, &status))
                 {
-                    Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
+                    //Serial.printf("Received message with ID %d, sequence: %d from component %d of system %d\n", msg.msgid, msg.seq, msg.compid, msg.sysid);
 
                     switch (msg.msgid)
                     {

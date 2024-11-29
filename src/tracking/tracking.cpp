@@ -75,8 +75,9 @@ void trackingInitialize()
   servo.write(servoAngle(0));
   lis3mdl.begin_I2C();
   lis3mdl.setRange(LIS3MDL_RANGE_4_GAUSS);
-  lis3mdl.setDataRate(LIS3MDL_DATARATE_155_HZ);
+  lis3mdl.setDataRate(LIS3MDL_DATARATE_80_HZ);
   lis3mdl.setPerformanceMode(LIS3MDL_HIGHMODE);
+  lis3mdl.setOperationMode(LIS3MDL_CONTINUOUSMODE);
   lsm6ds3trc.begin_I2C();
   lsm6ds3trc.setGyroDataRate(LSM6DS_RATE_104_HZ);
   lsm6ds3trc.setAccelDataRate(LSM6DS_RATE_104_HZ);
@@ -197,21 +198,22 @@ void trackingTask(void *parameters)
     // heading = convertHeading(headingKalman(tiltCompensatedHeading(mag_data.x, mag_data.y, mag_data.z, pitch, roll)), -90 + declination.magneticDeclination(gpsData.latitude, gpsData.longitude, myGNSS.getYear() % 100, myGNSS.getMonth(), myGNSS.getDay()));
     if (gpsData.fixType >= 3)
     {
-      heading = convertHeading(headingKalman(atan2(mag_data.y, mag_data.x) * 180 / PI), -90 + declination.magneticDeclination(gpsData.latitude, gpsData.longitude, myGNSS.getYear() % 100, myGNSS.getMonth(), myGNSS.getDay())); 
-      if(i <= 200){
+      heading = convertHeading(headingKalman(atan2(mag_data.y, mag_data.x) * 180 / PI), -90 + mag_declination); 
+      if(i <= 100){
         i++;
       }
-      if (i >= 200 && !ready_to_track)
+      if (i >= 100 && !ready_to_track)
       {
         moveServoByAngle((int)(abs(heading - 180)) % 360, 1000, 100);
         st.CalibrationOfs(1);
         delay(2000);
         ready_to_track = true;
       }
-      if (ready_to_track && getConnectionStatus())
+      if (ready_to_track)
       {
-        sDistAziElev = distAziElev(trackerCoord, uavCoord);
-        st.WritePosEx(1, angleToServo(sDistAziElev.azimuth), 1000, 100); 
+        gpsData.angles = distAziElev(trackerCoord, uavCoord);
+        st.WritePosEx(1, angleToServo((int)gpsData.angles.azimuth), 1000, 100);
+        servo.write(servoAngle((int)gpsData.angles.elevation));
       }
     }
     else

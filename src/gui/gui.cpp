@@ -296,8 +296,8 @@ void mainScreen()
 	text.println("GPS: " + String(getTrackerGPS().latitude) + " " + String(getTrackerGPS().longitude) + " " + String(getTrackerGPS().altitude));
 	text.setCursor(5, 60);
 	text.println("Fix: " + String(getTrackerGPS().fixType) + " Sat: " + String(getTrackerGPS().satCount));
-	text.setCursor(5, 80);
-	text.println("SYS TEXT");
+	text.setCursor(5, 70);
+	text.println("Date: " + String(getTrackerGPS().day) + "." + String(getTrackerGPS().month) + "." + String(getTrackerGPS().year));
 	text.setCursor(5, 90);
 	text.println(String(getUavSysText()->text));
 	text.setCursor(5, 110);

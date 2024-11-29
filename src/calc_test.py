@@ -9,4 +9,4 @@ def angleToTarget(observerZ, targetZ, distance):
     alpha = -math.asin((a - b * math.cos(gamma))/(math.sqrt(a**2 + b**2 - 2 * a * b * math.cos(gamma))))
     return math.degrees(alpha)
 
-print(angleToTarget(212.4, 3219.5, 4437))
+print(angleToTarget(111444/1000, 72036/1000, 24))

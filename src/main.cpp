@@ -9,7 +9,7 @@ void setup()
   trackingInitialize();   // Servo and IMU initialization
   mavlinkInit();          // MAVLink comm initialization
   guiInitialize();        // GUI initialization
-  xTaskCreate(trackingTask, "Movement and stabilization", 2048, NULL, 1, NULL);
+  xTaskCreate(trackingTask, "Movement and stabilization", 4096, NULL, 1, NULL);
   xTaskCreate(guiTask, "GUI", 8192, NULL, 1, NULL);
   xTaskCreate(decodeTelemetryTask, "Telemetry decoding", 4096, NULL, 1, NULL);
 }
